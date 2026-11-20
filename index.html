@@ -1,0 +1,3439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Lyrics</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b19;
+      --panel: #141720;
+      --surface: #1b2232;
+      --field: #1c202b;
+      --field-glass: rgba(8, 9, 14, .38);
+      --field-rim: #c8dcff3d;
+      --line: #405974;
+      --muted: #bfcee4;
+      --text: #f3f7ff;
+      --output-text: #e3eeff;
+      --placeholder: #c6d5eb;
+      --ice: #a3dfff;
+      --violet: #c9afff;
+      --accent: #c6f88e;
+      --modified: #79dcff;
+      --protected: #ffd38a;
+      --tag: #d5b3ff;
+      --unchanged: #a8b5c8;
+      --glass: rgba(9, 10, 16, .58);
+      --glass-header: rgba(8, 9, 14, .16);
+      --glass-border: rgba(181, 220, 255, .24);
+      --glass-shadow: 0 8px 24px #03050f40;
+      --glass-focus-border: #8ac2ee;
+      --radius-panel: 22px;
+      --radius-control: 12px;
+      --radius-field: 15px;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      isolation: isolate;
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(175deg, #05091933, #05081956 68%, #0708185e),
+        radial-gradient(circle clamp(110px, 12vw, 275px) at 34% 26%, #71d7ffc9, #5f9eeacc 61%, #6762cf94 81%, transparent 100%),
+        radial-gradient(circle clamp(55px, 7vw, 155px) at 94% 25%, #98eaffc9, #4caff6b3 55%, #4d87ea52 81%, transparent 100%),
+        radial-gradient(circle clamp(90px, 11vw, 245px) at 17% 79%, #db4baeb8, #be3eae99 61%, #9937c450 84%, transparent 100%),
+        radial-gradient(circle clamp(28px, 4vw, 90px) at 91% 84%, #db59dbad, #b039c871 54%, transparent 100%),
+        radial-gradient(circle clamp(70px, 8.5vw, 188px) at 0% 53%, #ed5e9bb8, #e344906b 67%, transparent 100%),
+        radial-gradient(ellipse 57% 76% at 4% 6%, #9d225f, #602351 53%, transparent 100%),
+        radial-gradient(ellipse 54% 72% at 92% 7%, #337ab4, #314e8c 49%, transparent 100%),
+        radial-gradient(ellipse 68% 66% at 74% 103%, #5f25ba, #382075 53%, transparent 100%),
+        linear-gradient(125deg, #471941 0%, #26193e 39%, #131733 70%, #10132b 100%);
+    }
+    main { width: min(1320px, 100%); margin: 0 auto; padding: 36px 32px 60px; }
+    .app-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; letter-spacing: .14em; }
+    .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #a5d8ff72; border-radius: 13px; background: #2a4359; color: var(--text); }
+    svg { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .guard-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #506f55; border-radius: 999px; color: var(--accent); background: #14241f; font-size: 12px; }
+    .guard-badge svg { width: 15px; height: 15px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .editor { min-width: 0; overflow: hidden; }
+    .editor, details, .stats, .json-method-example, .builder-card, .builder-output-card, .builder-section {
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-panel);
+      background: var(--glass);
+      box-shadow: var(--glass-shadow);
+    }
+    .editor:focus-within, .builder-card:focus-within, .builder-output-card:focus-within, .builder-section:focus-within {
+      border-color: var(--glass-focus-border);
+    }
+    .editor-head { min-height: 78px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 16px 22px; border-bottom: 1px solid var(--glass-border); background: var(--glass-header); }
+    h2 { margin: 0; font-size: 15px; font-weight: 600; }
+    .editor-title { display: flex; align-items: center; gap: 9px; }
+    .editor-title::before { content: ""; width: 6px; height: 6px; background: var(--ice); border-radius: 50%; }
+    .output-editor .editor-title::before { background: var(--violet); }
+    .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .output-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 12px; min-width: 0; max-width: 100%; margin-left: auto; }
+    .header-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+    .app-header-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 12px; min-width: 0; }
+    #clearSiteDataButton { padding: 9px 12px; font-size: 12px; }
+    #siteDataStatus { margin: -8px 0 20px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+    .site-data-dialog, .focus-dialog, .builder-preview-dialog {
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-panel);
+      background: var(--panel);
+      color: var(--text);
+      box-shadow: 0 22px 60px #03050f80;
+    }
+    .site-data-dialog::backdrop, .focus-dialog::backdrop, .builder-preview-dialog::backdrop { background: #090610d9; }
+    .site-data-dialog { width: min(480px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 24px; }
+    .site-data-dialog h2 { font-size: 18px; }
+    .site-data-dialog p { margin: 14px 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+    .site-data-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+    #confirmClearSiteDataButton { background: #47232c; border-color: #b86c7b; color: #ffe3e8; }
+    #confirmClearSiteDataButton:hover { background: #60303b; border-color: #ffadb2; }
+    .draft-status { color: var(--muted); font-size: 11px; }
+    .tool-tabs, .builder-tabs {
+      display: flex;
+      gap: 5px;
+      width: fit-content;
+      max-width: 100%;
+      padding: 4px;
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      background: var(--panel);
+      box-shadow: var(--glass-shadow);
+    }
+    .tool-tabs { margin: -6px 0 24px; }
+    @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .tool-tabs, .builder-tabs {
+        background: rgba(10, 11, 18, .64);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+      .editor, .builder-output-card, .builder-group[open]:has(#builder_lyrics) {
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+      }
+    }
+    .json-methodbar { display: grid; grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); gap: 14px 20px; align-items: stretch; margin-bottom: 20px; }
+    .json-method-control { display: grid; align-content: start; gap: 7px; min-width: 0; }
+    .json-method-control label { color: var(--muted); font-size: 13px; }
+    .json-method-control select { min-height: 48px; }
+    .json-method-example { min-width: 0; margin: 0; padding: 13px 16px; border-radius: 16px; }
+    .json-method-example code { display: block; color: var(--violet); font: 13px/1.6 "Cascadia Code", Consolas, monospace; overflow-wrap: anywhere; }
+    .json-method-note { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    #jsonFormatSaving { display: block; margin-top: 8px; color: var(--accent); font-size: 11px; }
+    @media (max-width: 700px) { .json-methodbar { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
+    button.icon-button { width: 44px; min-height: 44px; padding: 10px; background: transparent; }
+    :where(textarea, select, input[type="text"], input[type="number"], #builderPreviewJSON) {
+      background: var(--field-glass);
+    }
+    textarea {
+      display: block;
+      width: 100%;
+      border: 0;
+      color: var(--text);
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.9;
+      padding: 22px;
+      resize: vertical;
+      outline: none;
+    }
+    textarea::placeholder { color: var(--placeholder); opacity: 1; }
+    #input, #output, #jsonInput, #jsonOutput { min-height: clamp(420px, 52vh, 620px); font-size: 15px; line-height: 1.8; scrollbar-gutter: stable; }
+    #output, #jsonOutput { color: var(--output-text); }
+    #customWords { min-height: 72px; max-height: 240px; border: 1px solid var(--field-rim); border-radius: var(--radius-field); padding: 12px 14px; }
+    .controls { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin: 22px 0; }
+    .conversion-options { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(225px, 1.2fr); align-items: start; gap: 16px; }
+    .method-control, .mode-control, .reference-rule { display: grid; gap: 8px; min-width: 0; }
+    .method-control label, .mode-control label, .reference-rule > span { color: var(--muted); font-size: 12px; }
+    .reference-rule strong { display: flex; align-items: center; min-height: 46px; padding: 10px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius-control); background: var(--surface); color: var(--output-text); font-size: 13px; font-weight: 600; }
+    .width-control { margin: 0; padding: 0; border: 0; max-width: 100%; }
+    .width-control legend { padding: 0; margin-bottom: 8px; color: var(--muted); font-size: 12px; }
+    .segmented { display: flex; gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--field); }
+    .segmented button { min-height: 44px; min-width: 45px; padding: 8px 12px; border-color: transparent; border-radius: 9px; background: transparent; }
+    .width-options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .custom-width { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
+    .custom-width input[type="number"] { width: 76px; min-height: 46px; }
+    .custom-width input[aria-invalid="true"] { border-color: #ffadb2; }
+    .width-error { margin: 7px 0 0; color: #ffadb2; font-size: 12px; }
+    .mode-control .random-control { display: flex; align-items: center; gap: 7px; color: var(--text); font-size: 12px; cursor: pointer; }
+    select {
+      appearance: none;
+      min-height: 46px;
+      width: 100%;
+      min-width: 0;
+      padding: 11px 38px 11px 12px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background:
+        linear-gradient(45deg, transparent 41%, var(--ice) 42% 59%, transparent 60%) right 18px center / 6px 7px no-repeat,
+        linear-gradient(135deg, transparent 41%, var(--ice) 42% 59%, transparent 60%) right 13px center / 6px 7px no-repeat,
+        var(--field-glass);
+      border: 1px solid var(--field-rim);
+      border-radius: var(--radius-field);
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+    select option { color: var(--text); background: var(--field); }
+    @media (forced-colors: active) { select { appearance: auto; background: Field; color: FieldText; } }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; width: 100%; }
+    .method-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; min-width: 0; margin-left: auto; }
+    button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; max-width: 100%; padding: 11px 16px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface); color: var(--text); font: inherit; font-size: 14px; line-height: 1.4; font-weight: 500; cursor: pointer; overflow-wrap: anywhere; transition: background-color .15s, border-color .15s, color .15s, transform .15s; }
+    button:hover:not(:disabled) { background-color: #293d5a; border-color: #6994b5; }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button.primary { border-color: #b3d8ee; background: #9fcce7; color: #151c33; font-weight: 700; }
+    button.primary:hover:not(:disabled) { background: #b3d9ee; border-color: #c6e4f4; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    button[aria-pressed="true"] { color: var(--output-text); border-color: #7ba9ca; background: #304c69; }
+    button[aria-pressed="true"]:hover:not(:disabled) { color: var(--text); border-color: var(--ice); background: #3b5977; }
+    button.tool-tab, button.builder-tab { border-color: transparent; border-radius: 999px; background: transparent; color: var(--muted); font-weight: 600; }
+    button.tool-tab { min-height: 44px; white-space: nowrap; }
+    button.tool-tab:hover:where(:not(:disabled)), button.builder-tab:hover:where(:not(:disabled)) { background-color: #b2deff1a; border-color: #b2deff21; color: var(--text); }
+    button.tool-tab[aria-selected="true"], button.builder-tab[aria-selected="true"] {
+      border-color: #a5d5f584;
+      background: #9fcce733;
+      color: var(--text);
+    }
+    button.copy { min-height: 44px; padding: 9px 12px; font-size: 13px; }
+    button.copy svg { width: 14px; height: 14px; }
+    button.clear { color: var(--muted); background: transparent; border-color: transparent; }
+    button.clear:hover:not(:disabled) { color: #ffadb2; background: #2d1d23; border-color: #58323c; }
+    :focus-visible { outline: 2px solid var(--ice); outline-offset: 4px; }
+    button:is(.tool-tab, .builder-tab):focus-visible { outline-offset: -2px; }
+    textarea:focus-visible { outline-offset: -3px; }
+    summary:focus-visible { outline-offset: -4px; }
+    #staleNotice, #jsonStaleNotice { margin: 0; padding: 12px 22px; border-top: 1px solid #463c25; background: #292317; color: #efc578; font-size: 12px; }
+    #bracketWarning { margin: 0; padding: 12px 22px; border-top: 1px solid #463c25; background: #292317; color: #efc578; font-size: 12px; }
+    #status, #focusStatus, #jsonStatus { margin: 0; font-size: 13px; line-height: 1.6; color: var(--muted); }
+    .feedback { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .feedback:has(> #status[hidden]):has(> #undoClearButton[hidden]) { display: none; }
+    .json-feedback:has(> #jsonStatus[hidden]) { display: none; }
+    .feedback #status { margin: 0; }
+    #undoClearButton { min-height: 44px; padding: 9px 12px; font-size: 13px; }
+    .good { color: var(--accent) !important; }
+    .warn { color: #efc578 !important; }
+    .bad { color: #ff959e !important; }
+    details[open] { border-color: #678fb2; }
+    summary { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-radius: inherit; list-style: none; cursor: pointer; font-size: 13px; font-weight: 500; }
+    summary::-webkit-details-marker { display: none; }
+    summary .chevron { margin-left: auto; width: 16px; color: var(--muted); transition: transform .18s; }
+    details[open] summary .chevron { transform: rotate(180deg); }
+    .protected-settings { margin-bottom: 18px; }
+    .character-note, .character-result { margin: 0; font-size: 12px; line-height: 1.5; }
+    .character-note { color: var(--muted); }
+    .character-result { color: var(--violet); }
+    .protected-settings summary > svg:first-child { color: var(--muted); width: 16px; }
+    .protected-fields { padding: 0 18px 18px; }
+    .protected-fields > .budget-note { margin: 0 0 14px; }
+    .protected-fields > label { display: block; margin-bottom: 9px; font-size: 12px; color: var(--muted); }
+    .protection-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 9px; color: var(--muted); font-size: 12px; }
+    #clearProtectionButton { min-height: 44px; padding: 9px 10px; font-size: 12px; }
+    .settings-row, #budgetOptions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+    .settings-row { margin-top: 18px; }
+    .check-control { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--output-text); cursor: pointer; }
+    input[type="checkbox"] { width: 15px; height: 15px; margin: 0; accent-color: var(--ice); cursor: pointer; }
+    .limit-control { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    input[type="number"] { width: 92px; min-height: 44px; padding: 8px 10px; color: var(--text); border: 1px solid var(--field-rim); border-radius: var(--radius-field); font: inherit; }
+    .budget-note { margin: 14px 0 0; font-size: 12px; line-height: 1.6; color: var(--muted); }
+    .stats { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin: 22px 0 16px; padding: 13px 18px; border-radius: 16px; }
+    .stat { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; min-width: 0; }
+    .stat-label { color: var(--muted); font-size: 12px; }
+    .stat-value { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .stat-value small { color: var(--muted); font-size: 12px; font-weight: 400; }
+    .stat-note { color: var(--muted); font-size: 11px; }
+    #resultDetails > .budget-note { margin: -4px 0 16px; }
+    .is-stale .stat-value { color: var(--muted) !important; }
+    .is-stale .stats { opacity: .65; }
+    .is-stale .preview { border-left: 3px solid #ffc978; }
+    .stale-chip { color: #efc578; background: #292317; padding: 3px 7px; border-radius: 5px; font-size: 10px; }
+    .analysis-summary { flex-wrap: wrap; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-left: 8px; font-size: 11px; font-weight: 400; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--field); color: var(--output-text); white-space: nowrap; }
+    .legend i { display: inline-block; flex: 0 0 auto; width: 11px; height: 11px; background: currentColor; border-radius: 3px; }
+    .legend i.protected { background: transparent; border: 2px dotted currentColor; }
+    .legend i.tag { border-radius: 4px; }
+    .legend i.unchanged { background: transparent; border: 1px solid currentColor; }
+    .modified { color: var(--modified); }
+    .protected { color: var(--protected); }
+    .tag { color: var(--tag); }
+    .random-skipped { color: var(--unchanged); }
+    .unchanged { color: var(--unchanged); }
+    .preview { padding: 18px 22px; border-top: 1px solid var(--line); white-space: pre-wrap; overflow-wrap: anywhere; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; line-height: 2.15; }
+    .preview span[data-reason] { cursor: pointer; border-radius: 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+    .preview .modified { color: var(--modified); background: #244d625e; box-shadow: inset 0 -2px 0 #79dcffb3; }
+    .preview .protected { color: var(--protected); background: #5443295e; text-decoration: underline dotted var(--protected) 1px; text-underline-offset: 4px; }
+    .preview .tag { color: var(--tag); background: #4a366778; box-shadow: inset 0 0 0 1px #9a78c68c; }
+    .preview .random-skipped { background: #a8b5c80d; text-decoration: underline dotted; text-underline-offset: 4px; }
+    .preview .unchanged { color: var(--unchanged); background: #8190a51f; text-decoration: underline dotted #a8b5c8 1px; text-underline-offset: 4px; }
+    .preview span[data-reason]:hover, .preview span[data-reason]:focus-visible, .preview span.is-selected { outline: 2px solid currentColor; outline-offset: 2px; filter: brightness(1.18); }
+    .preview-more { display: flex; width: calc(100% - 36px); margin: 0 18px 18px; min-height: 44px; color: var(--violet); }
+    .analysis-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; border-top: 1px solid var(--line); }
+    .analysis-stats { margin: 0; color: var(--muted); font-size: 11px; }
+    .marker-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 12px; width: 100%; color: var(--muted); font-size: 11px; }
+    .marker-legend > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .marker { color: var(--modified); font-weight: 700; font-style: normal; }
+    .marker-zwsp { color: #79dcff; }
+    .marker-feff { color: #ff9fc6; }
+    .marker-wordJoiner { color: #ffd38a; }
+    .marker-legend .marker { display: inline-grid; place-items: center; min-width: 17px; height: 17px; border: 1px solid currentColor; border-radius: 5px; line-height: 1; }
+    .preview .marker { border-radius: 2px; }
+    .word-inspector { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; border-top: 1px solid var(--line); }
+    #reason { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    #protectWordButton { min-height: 44px; padding: 9px 12px; font-size: 13px; }
+    .output-editor { scroll-margin-top: 20px; }
+    .json-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 22px 0 12px; }
+    #convertButton, #jsonConvertButton { min-width: 232px; }
+    .mobile-actions { display: none; }
+    .focus-dialog { width: min(1550px, calc(100vw - 32px)); max-width: none; height: calc(100dvh - 32px); max-height: none; padding: 20px; }
+    .focus-dialog[open] { display: flex; flex-direction: column; gap: 18px; }
+    .focus-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .focus-header h2 { font-size: 16px; }
+    .focus-header > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+    .focus-dialog .editors { flex: 1; min-height: 0; }
+    .focus-dialog .editor { display: flex; flex-direction: column; }
+    .focus-dialog textarea { flex: 1; min-height: 0 !important; resize: none; font-size: 16px; }
+    .focus-dialog #input, .focus-dialog #output { font-size: 16px; }
+    .focus-open .mobile-actions { display: none; }
+    @media (max-width: 960px) {
+      main { padding: 28px 24px 40px; }
+      .controls { align-items: stretch; }
+      .actions { align-self: flex-end; }
+      .output-tools { gap: 8px; }
+      .editor-head { padding: 16px; }
+      textarea { padding: 18px; }
+    }
+    @media (max-width: 700px) {
+      main { padding: 24px 16px 110px; }
+      .app-header { margin-bottom: 20px; gap: 10px; }
+      .brand { font-size: 15px; gap: 9px; letter-spacing: .1em; }
+      .brand-mark { width: 32px; height: 32px; border-radius: 10px; }
+      .guard-badge { padding: 7px 9px; gap: 5px; font-size: 10px; }
+      .header-tools { gap: 7px; }
+      .draft-status { display: none; }
+      .editors { grid-template-columns: 1fr; gap: 14px; }
+      #input, #output, #jsonInput, #jsonOutput { min-height: 320px; font-size: 16px; }
+      .editor-head { min-height: 62px; flex-wrap: wrap; }
+      .output-tools { flex-wrap: wrap; justify-content: flex-end; max-width: 100%; margin-left: auto; }
+      .controls { margin: 18px 0; gap: 14px; }
+      .conversion-options { width: 100%; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+      .method-control, .mode-control, .width-control { width: 100%; min-width: 0; }
+      .actions { display: flex; width: 100%; }
+      .actions button { flex: 1 1 auto; padding: 10px 12px; font-size: 13px; }
+      .actions #convertButton { display: none; }
+      #jsonConvertButton { display: none; }
+      .tool-tabs { width: 100%; margin: -4px 0 18px; border-radius: 22px; }
+      .tool-tabs .tool-tab { flex: 1 1 0; min-width: 0; padding: 9px 5px; font-size: 12px; white-space: normal; line-height: 1.25; }
+      .method-meta { width: 100%; margin-left: 0; }
+      .stats { gap: 10px; padding: 12px 14px; }
+      .stat { gap: 6px; }
+      .legend { order: 3; width: 100%; margin: 3px 0 0; gap: 6px; }
+      .legend span { min-height: 28px; }
+      .settings-row { gap: 16px; }
+      .mobile-actions { display: flex; gap: 10px; position: fixed; z-index: 5; right: 0; bottom: 0; left: 0; padding: 12px 16px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--glass-border); background: var(--panel); }
+      @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        .mobile-actions { background: rgba(12, 18, 38, .88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+      }
+      .mobile-actions button { flex: 1; min-width: 0; min-height: 48px; padding: 10px 12px; }
+      .focus-dialog { width: calc(100vw - 16px); height: calc(100dvh - 16px); padding: 12px; border-radius: 18px; }
+      .focus-dialog .editors { overflow-y: auto; grid-auto-rows: minmax(330px, 1fr); }
+      .focus-dialog textarea { min-height: 255px !important; }
+      .focus-header button { min-height: 44px; padding: 9px 10px; font-size: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+
+/* Suno JSON Builder: bewusst nur der eigene Bereich */
+#builderPanel { min-width: 0; }
+.builder-intro { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 0 0 19px; }
+.builder-intro h2 { margin: 0 0 6px; font-size: 20px; font-weight: 650; letter-spacing: -.025em; }
+.builder-intro p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.builder-draft { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.builder-tabs { flex-wrap: wrap; margin-bottom: 20px; }
+.builder-field-help, .builder-group-help { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.builder-group-help { margin: 0 0 14px; }
+#builderPreserveOptions { display: contents; }
+.builder-tab { min-height: 44px; padding: 9px 14px; }
+.builder-layout { display: grid; grid-template-columns: minmax(0, 1.14fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.builder-settings, .builder-settings > [role="tabpanel"] { min-width: 0; }
+.builder-settings > [role="tabpanel"] { display: grid; gap: 13px; }
+.builder-group { overflow: hidden; }
+.builder-group > summary { justify-content: space-between; min-height: 57px; font-size: 14px; font-weight: 600; }
+.builder-group > summary::after { content: "+"; color: var(--ice); font-weight: 400; font-size: 21px; line-height: 1; }
+.builder-group[open] > summary::after { content: "−"; }
+.builder-group-body { display: grid; gap: 16px; padding: 0 18px 19px; }
+.builder-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px 14px; }
+.builder-field { display: grid; gap: 7px; min-width: 0; align-content: start; }
+.builder-field-wide { grid-column: 1 / -1; }
+.builder-field > label { color: var(--muted); font-size: 13px; line-height: 1.45; }
+#builderPanel input[type="text"], #builderPanel .builder-field > textarea { display: block; width: 100%; min-width: 0; padding: 11px 13px; border: 1px solid var(--field-rim); border-radius: var(--radius-field); color: var(--text); font: inherit; font-size: 14px; }
+#builderPanel input[type="text"] { min-height: 46px; }
+#builderPanel .builder-field > textarea { line-height: 1.75; min-height: 110px; font-family: "Cascadia Code", Consolas, monospace; resize: vertical; }
+#builderPanel #builder_lyrics { min-height: 260px; }
+#builderPanel .builder-section .builder-field > textarea { min-height: 150px; }
+#builderPanel input[type="text"]:focus-visible, #builderPanel .builder-field > select:focus-visible { border-color: var(--glass-focus-border); }
+#builderPanel input[type="text"]::placeholder { color: var(--placeholder); opacity: 1; }
+.builder-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px 14px; }
+.builder-check { display: flex; align-items: flex-start; gap: 9px; min-width: 0; min-height: 30px; color: var(--output-text); font-size: 13px; line-height: 1.55; cursor: pointer; }
+.builder-check input[type="checkbox"] { margin-top: 2px; flex: 0 0 auto; }
+.builder-subheading { margin: 2px 0 -3px; color: var(--text); font-size: 13px; font-weight: 600; }
+.builder-card, .builder-output-card, .builder-section { min-width: 0; }
+.builder-output-card { display: flex; flex-direction: column; position: sticky; top: 20px; max-height: calc(100dvh - 40px); overflow: auto; overscroll-behavior: contain; }
+.builder-output-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 19px 20px; border-bottom: 1px solid var(--glass-border); background: var(--glass-header); }
+.builder-output-head h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.builder-count { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#builderOutput { flex: 1 1 auto; min-height: 160px; height: clamp(280px, 52dvh, 590px); max-height: none; padding: 19px 20px; color: var(--output-text); font-size: 14px; line-height: 1.8; scrollbar-gutter: stable; }
+.builder-output-head, .builder-output-actions, .builder-status, .builder-live-note { flex-shrink: 0; }
+.builder-output-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 18px 0; border-top: 1px solid var(--line); }
+.builder-output-actions button { min-height: 44px; font-size: 13px; padding: 10px 12px; }
+.builder-output-actions .primary { flex: 1 1 auto; }
+.builder-status { margin: 13px 18px 0; color: var(--muted); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+.builder-live-note { margin: 13px 18px 17px; color: var(--muted); font-size: 11px; }
+.builder-section-heading { display: flex; flex-wrap: wrap; gap: 5px 12px; align-items: baseline; margin-top: 6px; }
+.builder-section-heading h3 { margin: 0; font-size: 14px; }
+.builder-section-heading > span { color: var(--muted); font-size: 11px; }
+.builder-sections { display: grid; gap: 14px; }
+.builder-section { padding: 16px; }
+.builder-section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 14px; }
+.builder-section-head h3 { margin: 0; font-size: 13px; }
+.builder-section-tools { display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%; }
+.builder-section-tools button { min-height: 44px; padding: 9px 10px; font-size: 12px; }
+.builder-section > .builder-field, .builder-section > .builder-fields { margin-top: 13px; }
+.builder-add { width: 100%; min-height: 44px; color: var(--violet); }
+.builder-persona-card { display: grid; gap: 24px; padding: 21px; }
+.builder-range { display: grid; gap: 10px; }
+.builder-range label { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--output-text); font-size: 13px; }
+.builder-range output { min-width: 45px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--field); color: var(--violet); font-size: 12px; text-align: center; font-variant-numeric: tabular-nums; }
+.builder-range input[type="range"] { width: 100%; margin: 0; accent-color: var(--ice); cursor: pointer; }
+.builder-range p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.builder-preview-dialog { width: min(850px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0; }
+.builder-preview-dialog[open] { display: flex; flex-direction: column; }
+.builder-preview-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 20px; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
+.builder-preview-head h2 { font-size: 15px; }
+.builder-preview-head button { min-height: 44px; padding: 9px 11px; font-size: 13px; }
+#builderPreviewJSON { margin: 0; padding: 20px; overflow: auto; min-height: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 14px/1.8 "Cascadia Code", Consolas, monospace; color: var(--output-text); }
+@media (max-width: 900px) {
+  .builder-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .builder-output-card { position: static; max-height: none; overflow: hidden; }
+  #builderOutput { min-height: 320px; height: 430px; max-height: 780px; }
+}
+@media (max-width: 500px) {
+  .builder-intro { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .builder-intro h2 { font-size: 18px; }
+  .builder-tabs { width: 100%; gap: 2px; border-radius: 22px; }
+  .builder-tabs .builder-tab { flex: 1 1 calc(50% - 4px); }
+  .builder-tab { flex: 1 1 0; min-width: 0; white-space: normal; padding: 8px 5px; font-size: 11px; line-height: 1.4; }
+  .builder-fields { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .builder-group > summary { padding: 15px; }
+  .builder-group-body { padding: 0 15px 16px; }
+  .builder-checks { grid-template-columns: minmax(0, 1fr); }
+  #builderPanel input[type="text"], #builderPanel .builder-field > textarea, #builderPanel select { font-size: 16px; }
+  #builderPanel #builder_lyrics { min-height: 230px; }
+  #builderPanel .builder-section .builder-field > textarea { min-height: 140px; }
+  .builder-persona-card, .builder-section { padding: 16px; }
+  .builder-output-head { padding: 16px; }
+  #builderOutput { padding: 16px; font-size: 16px; }
+  .builder-output-actions { padding: 14px 15px 0; }
+  .builder-preview-head { padding: 14px; }
+  #builderPreviewJSON { padding: 15px; font-size: 13px; }
+}
+
+/* Dichte nach nutzbarer Fenstergröße; große Bildschirme und Mobilgeräte behalten ihre Größen. */
+@media (min-width: 701px) and (max-width: 1920px), (min-width: 701px) and (max-height: 1000px) {
+  main { width: min(1160px, 100%); padding: 24px 24px 44px; }
+  .app-header { gap: 12px; margin-bottom: 18px; }
+  .tool-tabs { margin: -4px 0 16px; padding: 3px; }
+  .editors { gap: 14px; }
+  .editor { border-radius: 19px; }
+  .editor-head { min-height: 64px; gap: 8px 12px; padding: 11px 16px; }
+  textarea { padding: 16px; }
+  #input, #output, #jsonInput, #jsonOutput { min-height: clamp(300px, 44dvh, 460px); font-size: 14px; }
+  button { padding: 8px 12px; }
+  button, button.icon-button, button.tool-tab, button.copy, #undoClearButton, #clearProtectionButton, #protectWordButton,
+  .segmented button, .builder-tab, .builder-output-actions button, .builder-section-tools button, .builder-add, .builder-preview-head button { min-height: 40px; }
+  button.icon-button { width: 40px; padding: 9px; }
+  button.copy, #undoClearButton, #protectWordButton { padding: 7px 10px; }
+  select, .json-method-control select, .custom-width input[type="number"], input[type="number"] { min-height: 40px; }
+  select { padding: 8px 38px 8px 11px; }
+  .segmented button { min-width: 40px; padding: 6px 10px; }
+  .reference-rule strong { min-height: 40px; padding: 8px 10px; }
+  .json-methodbar { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); gap: 12px 16px; margin-bottom: 14px; }
+  .json-method-example { padding: 10px 13px; }
+  .controls { gap: 10px; margin: 16px 0; }
+  .conversion-options { gap: 12px; }
+  .actions, .json-actions { gap: 8px; }
+  .method-meta { gap: 4px 10px; }
+  .feedback { margin-bottom: 12px; }
+  summary { padding: 12px 15px; }
+  .protected-settings { margin-bottom: 12px; }
+  .protected-fields { padding: 0 15px 14px; }
+  .settings-row { margin-top: 14px; }
+  .stats { margin: 16px 0 12px; padding: 10px 14px; }
+  .json-actions { margin: 16px 0 10px; }
+  .builder-intro { margin-bottom: 14px; }
+  .builder-tabs { margin-bottom: 14px; }
+  .builder-tab { padding: 8px 12px; }
+  .builder-layout { gap: 16px; }
+  .builder-settings > [role="tabpanel"] { gap: 11px; }
+  .builder-group > summary { min-height: 48px; }
+  .builder-group-body { gap: 12px; padding: 0 15px 15px; }
+  .builder-fields { gap: 12px; }
+  .builder-field { gap: 6px; }
+  #builderPanel input[type="text"] { min-height: 40px; padding: 8px 11px; }
+  #builderPanel .builder-field > textarea { min-height: 96px; padding: 10px 12px; line-height: 1.65; }
+  #builderPanel #builder_lyrics { min-height: 220px; }
+  #builderPanel .builder-section .builder-field > textarea { min-height: 130px; }
+  .builder-output-card { top: 12px; }
+  .builder-output-head { padding: 14px 16px; }
+  #builderOutput { height: clamp(240px, 44dvh, 460px); padding: 16px; line-height: 1.75; }
+  .builder-output-actions { gap: 6px; padding: 12px 14px 0; }
+  .builder-output-actions button { padding: 8px 10px; }
+  .builder-status { margin: 10px 14px 0; }
+  .builder-live-note { margin: 10px 14px 13px; }
+  .builder-sections { gap: 12px; }
+  .builder-section { padding: 14px; }
+  .builder-section-head { margin-bottom: 11px; }
+  .builder-section-tools button { padding: 7px 9px; }
+  .builder-section > .builder-field, .builder-section > .builder-fields { margin-top: 11px; }
+  .builder-persona-card { gap: 18px; padding: 17px; }
+  .builder-range { gap: 8px; }
+  .focus-dialog { padding: 16px; }
+  .focus-dialog[open] { gap: 12px; }
+  .builder-preview-head { padding: 13px 16px; }
+  .builder-preview-head button { padding: 7px 10px; }
+  #builderPreviewJSON { padding: 16px; line-height: 1.75; }
+}
+@media (min-width: 701px) and (max-height: 800px) {
+  main { padding: 18px 20px 36px; }
+  .app-header { margin-bottom: 14px; }
+  .tool-tabs { margin-bottom: 12px; }
+  .editor-head { min-height: 60px; padding: 9px 14px; }
+  textarea { padding: 14px; }
+  #input, #output, #jsonInput, #jsonOutput { min-height: clamp(260px, 40dvh, 340px); }
+  .json-methodbar { margin-bottom: 12px; }
+  .json-method-example { padding: 9px 12px; }
+  .controls { margin: 14px 0; }
+  .protected-settings { margin-bottom: 10px; }
+  .builder-intro, .builder-tabs { margin-bottom: 12px; }
+  .builder-group > summary { min-height: 44px; padding: 10px 14px; }
+  #builderPanel #builder_lyrics { min-height: 200px; }
+  #builderPanel .builder-section .builder-field > textarea { min-height: 120px; }
+  .builder-output-head { padding: 12px 14px; }
+  #builderOutput { height: clamp(220px, 42dvh, 360px); padding: 14px; }
+  .builder-section { padding: 12px; }
+  .builder-persona-card { gap: 16px; padding: 15px; }
+}
+
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1 class="sr-only">Lyrics bearbeiten</h1>
+<header class="app-header">
+  <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10v4m4-8v12m4-15v18m4-14v10m4-7v4"/></svg></span>LYRICS</div>
+  <div class="app-header-actions">
+  <div id="markerHeaderTools" class="header-tools">
+    <span id="draftStatus" class="draft-status" role="status" hidden></span>
+    <span id="guardBadge" class="guard-badge" title="Alles in eckigen Klammern bleibt unverändert."><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span id="guardLabel">Tags geschützt</span></span>
+    <button type="button" id="expandEditorButton" class="icon-button" aria-label="Editor vergrößern" title="Editor vergrößern" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8 3 3m13 5 5-5M8 16l-5 5m13-5 5 5"/></svg></button>
+  </div>
+  <div id="jsonHeaderTools" class="header-tools" hidden><span id="jsonDraftStatus" class="draft-status" role="status" hidden></span></div>
+  <button type="button" id="clearSiteDataButton" class="clear" title="Alle gespeicherten Entwürfe und Einstellungen dieser Website löschen"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5m4-5v5"/></svg>Lokale Daten löschen</button>
+  </div>
+</header>
+<p id="siteDataStatus" role="status" hidden></p>
+
+<nav class="tool-tabs" role="tablist" aria-label="Werkzeug wählen">
+  <button type="button" class="tool-tab" id="spacerTab" role="tab" aria-controls="spacerPanel" aria-selected="true" tabindex="0">Unsichtbare Zeichen</button>
+  <button type="button" class="tool-tab" id="jsonTab" role="tab" aria-controls="jsonPanel" aria-selected="false" tabindex="-1">Lyrics → JSON</button>
+  <button type="button" class="tool-tab" id="builderTab" role="tab" aria-controls="builderPanel" aria-selected="false" tabindex="-1">Suno Builder</button>
+</nav>
+
+<section id="spacerPanel" role="tabpanel" aria-labelledby="spacerTab">
+
+<div id="editorHome">
+<div id="editors" class="editors">
+  <section class="editor" aria-labelledby="inputLabel">
+    <div class="editor-head">
+      <h2 class="editor-title"><label id="inputLabel" for="input">Lyrics</label></h2>
+      <span id="inputCount" class="count">0 Zeichen</span>
+    </div>
+    <textarea id="input" spellcheck="false" placeholder="Lyrics einfügen …"></textarea>
+    <p id="bracketWarning" role="status" hidden></p>
+  </section>
+  <section class="editor output-editor" aria-labelledby="outputLabel">
+    <div class="editor-head">
+      <h2 class="editor-title"><label id="outputLabel" for="output">Ergebnis</label></h2>
+      <div class="output-tools">
+        <span id="outputCount" class="count">0 Zeichen</span>
+        <button type="button" class="copy" id="copyButton" disabled aria-label="Ergebnis kopieren"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></svg><span id="copyLabel">Kopieren</span></button>
+      </div>
+    </div>
+    <textarea id="output" readonly spellcheck="false" placeholder="Dein Ergebnis …" aria-describedby="staleNotice"></textarea>
+    <p id="staleNotice" hidden>Ergebnis veraltet. Bitte erneut umwandeln.</p>
+  </section>
+</div>
+</div>
+
+<div class="controls">
+ <div class="conversion-options">
+  <div class="method-control">
+    <label for="characterType">Methode</label>
+    <select id="characterType" aria-describedby="characterNote">
+      <option value="zwsp" selected>U+200B · Standard</option>
+      <option value="feff">U+FEFF</option>
+      <option value="wordJoiner">U+2060</option>
+      <option value="mix">Mix im Wort</option>
+      <option value="reference">Vollständiger Mix</option>
+    </select>
+  </div>
+  <div id="wordOptions" class="mode-control">
+    <label for="mode">Wörter verändern</label>
+    <select id="mode">
+      <option value="safe">Wenige</option>
+      <option value="balanced">Mittel</option>
+      <option value="selective" selected>Viele</option>
+      <option value="all">Alle Wörter</option>
+    </select>
+    <label class="random-control" title="Bei jeder Umwandlung eine neue Auswahl veränderbarer Wörter."><input type="checkbox" id="randomizeWords">Zufällige Wortauswahl</label>
+  </div>
+  <div id="referenceRule" class="reference-rule" hidden><span>Wörter verändern</span><strong>Alle Buchstaben · ohne Zufall</strong></div>
+  <fieldset class="width-control">
+    <legend>Zeichenanzahl</legend>
+    <div class="width-options">
+    <div class="segmented" role="group" aria-label="Zeichen pro Stelle">
+      <button type="button" id="widthOneButton" aria-label="1 Zeichen pro Stelle" aria-pressed="true">1×</button>
+      <button type="button" id="widthTwoButton" aria-label="2 Zeichen pro Stelle" aria-pressed="false">2×</button>
+      <button type="button" id="widthCustomButton" aria-pressed="false" aria-controls="customWidthControl" aria-expanded="false">Eigene Zahl</button>
+    </div>
+    <label class="custom-width" id="customWidthControl" for="customWidth" hidden><span id="customWidthLabel">Pro Lücke (1–100)</span>
+      <input type="number" id="customWidth" min="1" max="100" step="1" value="1" inputmode="numeric" aria-describedby="customWidthError" title="Unsichtbare Zeichen pro Buchstabenlücke">
+    </label>
+    </div>
+    <p id="customWidthError" class="width-error" role="status" hidden>Bitte eine ganze Zahl von 1 bis 100 eingeben.</p>
+  </fieldset>
+ </div>
+  <div class="actions">
+    <button type="button" class="primary" id="convertButton"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/></svg><span id="convertLabel">Umwandeln &amp; kopieren</span></button>
+    <button type="button" id="cleanButton" title="U+200B, U+FEFF und U+2060 aus der Eingabe entfernen. Tags bleiben unverändert.">Text bereinigen</button>
+    <button type="button" class="clear" id="clearButton" aria-label="Lyrics und Ergebnis leeren"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5m4-5v5"/></svg>Leeren</button>
+    <div class="method-meta"><p id="characterNote" class="character-note">U+200B zwischen Buchstaben.</p><p id="characterResultNote" class="character-result" hidden></p></div>
+  </div>
+</div>
+<div class="feedback">
+  <div id="status" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+  <button type="button" id="undoClearButton" hidden>Rückgängig</button>
+</div>
+
+<details class="protected-settings">
+  <summary><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>Einstellungen<svg class="chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
+  <div class="protected-fields">
+    <p id="allModeNotice" class="budget-note" hidden>„Alle Wörter“ ignoriert die Schutzliste und das Zeichenlimit.</p>
+    <div id="protectionOptions">
+    <div class="protection-heading"><label for="customWords">Eigene Schutzliste</label><button type="button" class="clear" id="clearProtectionButton" disabled>Liste leeren</button></div>
+    <textarea id="customWords" rows="2" spellcheck="false" placeholder="Wörter schützen: ready, friends, patience …" title="Mit Leerzeichen, Komma oder Zeilenumbruch trennen."></textarea>
+    </div>
+    <div class="settings-row">
+      <div id="budgetOptions">
+      <label class="check-control"><input type="checkbox" id="budgetEnabled" checked>Zeichenlimit einhalten</label>
+      <label class="limit-control" for="characterLimit">Limit<input type="number" id="characterLimit" min="1" max="100000" step="1" value="5000" inputmode="numeric"></label>
+      </div>
+      <label class="check-control"><input type="checkbox" id="syncScroll" checked>Scrollen koppeln</label>
+    </div>
+  </div>
+</details>
+
+<div id="resultDetails">
+<div id="stats" class="stats" hidden aria-live="polite"></div>
+<p id="budgetNote" class="budget-note" hidden></p>
+
+<details id="analysisPanel" hidden>
+  <summary class="analysis-summary">Analyse<span id="analysisStaleBadge" class="stale-chip" hidden>Veraltet</span><span class="legend"><span id="modifiedLegend"><i class="modified" aria-hidden="true"></i>Verändert</span><span id="protectedLegend"><i class="protected" aria-hidden="true"></i>Geschützt</span><span id="tagLegend"><i class="tag" aria-hidden="true"></i>Tags</span><span id="randomLegend" hidden><i class="random-skipped" aria-hidden="true"></i>Zufällig ausgelassen</span><span id="unchangedLegend" hidden><i class="unchanged" aria-hidden="true"></i>Unverändert</span></span><svg class="chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
+  <div id="analysisContent">
+  <div class="analysis-tools"><p id="analysisStats" class="analysis-stats"></p><label id="markerToggleControl" class="check-control"><input type="checkbox" id="showInvisible">Zeichen anzeigen</label><div id="markerLegend" class="marker-legend" hidden><span id="marker200BLegend"><i class="marker marker-zwsp" aria-hidden="true">·</i>U+200B</span><span id="markerFEFFLegend"><i class="marker marker-feff" aria-hidden="true">○</i>U+FEFF</span><span id="marker2060Legend"><i class="marker marker-wordJoiner" aria-hidden="true">¦</i>U+2060</span></div></div>
+  <div id="preview" class="preview"></div>
+  <button type="button" id="previewMoreButton" class="preview-more" hidden>Weitere Vorschau anzeigen</button>
+  <div id="wordInspector" class="word-inspector" hidden>
+    <p id="reason" aria-live="polite"></p>
+    <button type="button" id="protectWordButton" hidden>Wort schützen</button>
+  </div>
+  </div>
+</details>
+</div>
+
+</section>
+
+<section id="jsonPanel" role="tabpanel" aria-labelledby="jsonTab" hidden>
+  <div class="json-methodbar">
+    <div class="json-method-control"><label for="jsonFormat">JSON-Methode</label>
+      <select id="jsonFormat" aria-describedby="jsonFormatHint jsonFormatNote">
+        <option value="standard" selected>1 · Standard · lesbar</option>
+        <option value="compact">2 · Kompakt</option>
+        <option value="sections">3 · Abschnitte mit Zeilen</option>
+        <option value="sectionText">4 · Abschnitt als Text</option>
+        <option value="pairs">5 · Listenformat</option>
+      </select>
+    </div>
+    <p class="json-method-example"><code id="jsonFormatHint"></code><span id="jsonFormatNote" class="json-method-note"></span><span id="jsonFormatSaving" hidden title="Vergleich mit Standard bei derselben Abschnittsstruktur."></span></p>
+  </div>
+  <div class="editors json-editors">
+    <section class="editor" aria-labelledby="jsonInputLabel">
+      <div class="editor-head">
+        <h2 class="editor-title"><label id="jsonInputLabel" for="jsonInput">Lyrics</label></h2>
+        <span id="jsonInputCount" class="count">0 Zeichen</span>
+      </div>
+      <textarea id="jsonInput" spellcheck="false" placeholder="Lyrics mit [Intro], [Verse] … einfügen."></textarea>
+    </section>
+    <section class="editor output-editor json-output-editor" aria-labelledby="jsonOutputLabel">
+      <div class="editor-head">
+        <h2 class="editor-title"><label id="jsonOutputLabel" for="jsonOutput">JSON</label></h2>
+        <div class="output-tools">
+          <span id="jsonOutputCount" class="count">0 Zeichen</span>
+          <button type="button" class="copy" id="jsonCopyButton" disabled aria-label="JSON kopieren"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></svg><span id="jsonCopyLabel">JSON kopieren</span></button>
+        </div>
+      </div>
+      <textarea id="jsonOutput" readonly spellcheck="false" placeholder="Dein JSON …" aria-describedby="jsonStaleNotice"></textarea>
+      <p id="jsonStaleNotice" hidden>JSON veraltet. Bitte erneut umwandeln.</p>
+    </section>
+  </div>
+  <div class="json-actions">
+    <button type="button" class="primary" id="jsonConvertButton"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/></svg><span id="jsonConvertLabel">JSON umwandeln &amp; kopieren</span></button>
+    <button type="button" class="clear" id="jsonClearButton" aria-label="JSON-Eingabe und -Ergebnis leeren">Leeren</button>
+  </div>
+  <div class="feedback json-feedback"><div id="jsonStatus" role="status" aria-live="polite" aria-atomic="true" hidden></div></div>
+</section>
+<section id="builderPanel" role="tabpanel" aria-labelledby="builderTab" hidden>
+  <div class="builder-intro">
+    <div><h2>Suno JSON Builder</h2><p>Sound, Songaufbau und Stimme frei einstellen.</p></div>
+    <span id="builderDraftStatus" class="builder-draft" aria-live="polite">Lokal gespeichert</span>
+  </div>
+  <div class="builder-tabs" role="tablist" aria-label="Prompt-Art">
+    <button type="button" id="builderRebuildTab" class="builder-tab" role="tab" aria-selected="true" aria-controls="builderRebuildPanel" tabindex="0" data-builder-mode="rebuild">Song überarbeiten</button>
+    <button type="button" id="builderFullTab" class="builder-tab" role="tab" aria-selected="false" aria-controls="builderFullPanel" tabindex="-1" data-builder-mode="full">Song aufbauen</button>
+    <button type="button" id="builderPersonaTab" class="builder-tab" role="tab" aria-selected="false" aria-controls="builderPersonaPanel" tabindex="-1" data-builder-mode="persona">Stimme & Persona</button>
+  </div>
+  <div class="builder-layout">
+    <div class="builder-settings">
+      <div id="builderRebuildPanel" role="tabpanel" aria-labelledby="builderRebuildTab">
+        <div id="builderLyricsHome"><details id="builderLyricsGroup" class="builder-group" open><summary id="builderLyricsTitle">Lyrics & Grundeinstellungen</summary><div class="builder-group-body"><div id="builderRawLyricsField" class="builder-field builder-field-wide"><label id="builderLyricsLabel" for="builder_lyrics">Neue Lyrics</label><textarea id="builder_lyrics" rows="7" placeholder="Deine Lyrics mit [Verse], [Chorus] …"></textarea></div>
+          <div class="builder-checks"><div id="builderPreserveOptions"><label class="builder-check" for="builder_preserve_structure"><input type="checkbox" id="builder_preserve_structure" checked><span>Songstruktur beibehalten</span></label><label class="builder-check" for="builder_preserve_vocals"><input type="checkbox" id="builder_preserve_vocals" checked><span>Gesang beibehalten</span></label><label class="builder-check" for="builder_preserve_genre"><input type="checkbox" id="builder_preserve_genre"><span>Genre beibehalten</span></label></div><label id="builderEnhanceOption" class="builder-check" for="builder_enhance_instruments"><input type="checkbox" id="builder_enhance_instruments" checked><span>Instrumente verbessern</span></label></div><p id="builderPreserveHelp" class="builder-field-help">Beim Cover beschreiben diese Optionen, was vom Ausgangssong erhalten bleiben soll.</p></div></details></div>
+        <div id="builderProductionHome"><div id="builderProductionGroups">
+        <details class="builder-group" open><summary>Produktion & Qualität</summary><div class="builder-group-body"><p class="builder-group-help">Beschreibe den gewünschten Klang. „Premium“ und „Studio“ sind Klangwünsche und schalten in Suno keine Qualitätsstufe frei.</p><div class="builder-fields"><div class="builder-field"><label for="builder_instrument_quality">Instrumentenqualität</label><select id="builder_instrument_quality" aria-describedby="builder_help_instrument_quality">
+                        <option value="standard">Standard</option>
+                        <option value="high" selected>Hoch</option>
+                        <option value="premium">Premium</option>
+                    </select><p id="builder_help_instrument_quality" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_mixing">Mix</label><select id="builder_mixing" aria-describedby="builder_help_mixing">
+                        <option value="basic">Einfach</option>
+                        <option value="balanced">Ausgewogen</option>
+                        <option value="modern" selected>Modern</option>
+                        <option value="live">Live</option>
+                        <option value="acoustic">Akustisch</option>
+                        <option value="cinematic">Filmisch</option>
+                    </select><p id="builder_help_mixing" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_mastering">Mastering</label><select id="builder_mastering" aria-describedby="builder_help_mastering">
+                        <option value="basic">Einfach</option>
+                        <option value="balanced">Ausgewogen</option>
+                        <option value="studio" selected>Studio</option>
+                        <option value="live">Live</option>
+                        <option value="vinyl">Vinyl</option>
+                        <option value="radio">Radio</option>
+                    </select><p id="builder_help_mastering" class="builder-field-help"></p></div></div></div></details>
+        <details class="builder-group"><summary>Gesang & Duett</summary><div class="builder-group-body"><div class="builder-fields"><div class="builder-field"><label for="builder_vocal_processing">Gesangsbearbeitung</label><select id="builder_vocal_processing" aria-describedby="builder_help_vocal_processing">
+                            <option value="none" selected>Keine</option>
+                            <option value="light">Leicht</option>
+                            <option value="moderate">Mittel</option>
+                            <option value="enhanced">Verstärkt</option>
+                        </select><p id="builder_help_vocal_processing" class="builder-field-help"></p></div></div><div class="builder-checks"><label id="builderPreserveCharacterOption" class="builder-check" for="builder_preserve_character"><input type="checkbox" id="builder_preserve_character" checked><span>Stimmcharakter beibehalten</span></label><label class="builder-check" for="builder_duet_enabled"><input type="checkbox" id="builder_duet_enabled"><span>Duett aktivieren</span></label></div><p class="builder-group-help">Gesangsbearbeitung gilt für die Stimme. Die folgenden Duett-Einstellungen werden mit „Duett aktivieren“ übernommen.</p><div class="builder-fields"><div class="builder-field"><label for="builder_voice_type">Stimmklang</label><select id="builder_voice_type" aria-describedby="builder_help_voice_type">
+                                <option value="natural_clean" selected>Natürlich & klar</option>
+                                <option value="warm">Warm</option>
+                                <option value="bright">Hell</option>
+                                <option value="powerful">Kraftvoll</option>
+                                <option value="soft">Sanft</option>
+                            </select><p id="builder_help_voice_type" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_duet_style">Duett-Stil</label><select id="builder_duet_style" aria-describedby="builder_help_duet_style">
+                                <option value="alternating" selected>Abwechselnd</option>
+                                <option value="harmony">Harmonien</option>
+                                <option value="alternating_and_harmony">Abwechselnd & Harmonien</option>
+                                <option value="call_and_response">Frage & Antwort</option>
+                            </select><p id="builder_help_duet_style" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_duet_effects">Duett-Effekte</label><select id="builder_duet_effects" aria-describedby="builder_help_duet_effects">
+                                <option value="none" selected>Keine</option>
+                                <option value="light">Leicht</option>
+                                <option value="moderate">Mittel</option>
+                                <option value="heavy">Stark</option>
+                            </select><p id="builder_help_duet_effects" class="builder-field-help"></p></div></div></div></details>
+        <details class="builder-group"><summary>Dynamik & Refrain</summary><div class="builder-group-body"><p class="builder-group-help">Wie verändert sich die Energie zwischen Strophe, Aufbau und Refrain?</p><div class="builder-fields"><div class="builder-field"><label for="builder_verse_dynamics">Strophe</label><select id="builder_verse_dynamics" aria-describedby="builder_help_verse_dynamics">
+                            <option value="controlled" selected>Kontrolliert</option>
+                            <option value="quiet">Ruhig</option>
+                            <option value="building">Steigernd</option>
+                            <option value="energetic">Energisch</option>
+                        </select><p id="builder_help_verse_dynamics" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_prechorus_dynamics">Pre-Chorus</label><select id="builder_prechorus_dynamics" aria-describedby="builder_help_prechorus_dynamics">
+                            <option value="natural">Natürlich</option>
+                            <option value="build_with_tension" selected>Spannung aufbauen</option>
+                            <option value="restrained">Zurückhaltend</option>
+                            <option value="explosive">Explosiv</option>
+                        </select><p id="builder_help_prechorus_dynamics" class="builder-field-help"></p></div></div><h3 class="builder-subheading">Refrain</h3><div class="builder-fields"><div class="builder-field"><label for="builder_chorus_intensity">Intensität</label><select id="builder_chorus_intensity" aria-describedby="builder_help_chorus_intensity">
+                                <option value="low">Niedrig</option>
+                                <option value="moderate">Mittel</option>
+                                <option value="high" selected>Hoch</option>
+                                <option value="maximum">Maximal</option>
+                            </select><p id="builder_help_chorus_intensity" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_chorus_volume">Lautstärke</label><select id="builder_chorus_volume" aria-describedby="builder_help_chorus_volume">
+                                <option value="same">Gleich</option>
+                                <option value="slightly_increased">Leicht erhöht</option>
+                                <option value="increased" selected>Erhöht</option>
+                                <option value="significantly_increased">Deutlich erhöht</option>
+                            </select><p id="builder_help_chorus_volume" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_chorus_transition">Übergang</label><select id="builder_chorus_transition" aria-describedby="builder_help_chorus_transition">
+                                <option value="smooth">Fließend</option>
+                                <option value="natural">Natürlich</option>
+                                <option value="impactful">Druckvoll</option>
+                                <option value="dramatic" selected>Dramatisch</option>
+                            </select><p id="builder_help_chorus_transition" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_chorus_layering">Schichten</label><select id="builder_chorus_layering" aria-describedby="builder_help_chorus_layering">
+                                <option value="minimal">Minimal</option>
+                                <option value="moderate">Mittel</option>
+                                <option value="thick">Dicht</option>
+                                <option value="thicker" selected>Sehr dicht</option>
+                            </select><p id="builder_help_chorus_layering" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_chorus_stereo_width">Stereobreite</label><select id="builder_chorus_stereo_width" aria-describedby="builder_help_chorus_stereo_width">
+                                <option value="narrow">Schmal</option>
+                                <option value="normal">Normal</option>
+                                <option value="wide" selected>Weit</option>
+                                <option value="very_wide">Sehr weit</option>
+                            </select><p id="builder_help_chorus_stereo_width" class="builder-field-help"></p></div></div></div></details>
+        <details class="builder-group"><summary>Instrumente im Refrain</summary><div class="builder-group-body"><p class="builder-group-help">Beschreibe Schlagzeug, Bass und Synthesizer für den Refrain.</p><div class="builder-checks"><label class="builder-check" for="builder_instrument_boost"><input type="checkbox" id="builder_instrument_boost" checked><span>Instrumente verstärken</span></label></div><div class="builder-fields"><div class="builder-field"><label for="builder_drums_treatment">Schlagzeug</label><select id="builder_drums_treatment" aria-describedby="builder_help_drums_treatment">
+                            <option value="standard">Standard</option>
+                            <option value="punchy">Knackig</option>
+                            <option value="heavier_and_punchy" selected>Kräftig & knackig</option>
+                            <option value="explosive">Explosiv</option>
+                        </select><p id="builder_help_drums_treatment" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_bass_treatment">Bass</label><select id="builder_bass_treatment" aria-describedby="builder_help_bass_treatment">
+                            <option value="standard">Standard</option>
+                            <option value="fuller">Voller</option>
+                            <option value="deeper" selected>Tiefer</option>
+                            <option value="distorted">Verzerrt</option>
+                        </select><p id="builder_help_bass_treatment" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_synths_treatment">Synthesizer & Keys</label><select id="builder_synths_treatment" aria-describedby="builder_help_synths_treatment">
+                            <option value="standard">Standard</option>
+                            <option value="bright">Hell</option>
+                            <option value="bright_and_layered" selected>Hell & geschichtet</option>
+                            <option value="aggressive">Aggressiv</option>
+                        </select><p id="builder_help_synths_treatment" class="builder-field-help"></p></div></div></div></details>
+        <details class="builder-group"><summary>Klangfarbe</summary><div class="builder-group-body"><p class="builder-group-help">Helligkeit beschreibt die Höhen, Wärme den Klangcharakter und Räumlichkeit die Tiefe des Mixes.</p><div class="builder-fields"><div class="builder-field"><label for="builder_brightness">Helligkeit</label><select id="builder_brightness" aria-describedby="builder_help_brightness">
+                            <option value="dark">Dunkel</option>
+                            <option value="warm">Warm</option>
+                            <option value="balanced" selected>Ausgewogen</option>
+                            <option value="bright">Hell</option>
+                            <option value="crisp">Brillant</option>
+                        </select><p id="builder_help_brightness" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_warmth">Wärme</label><select id="builder_warmth" aria-describedby="builder_help_warmth">
+                            <option value="cool">Kühl</option>
+                            <option value="neutral">Neutral</option>
+                            <option value="moderate" selected>Mittel</option>
+                            <option value="warm">Warm</option>
+                            <option value="hot">Sehr warm</option>
+                        </select><p id="builder_help_warmth" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_space">Räumlichkeit</label><select id="builder_space" aria-describedby="builder_help_space">
+                            <option value="intimate">Intim</option>
+                            <option value="close">Nah</option>
+                            <option value="balanced">Ausgewogen</option>
+                            <option value="wide" selected>Weit</option>
+                            <option value="expansive">Sehr weitläufig</option>
+                        </select><p id="builder_help_space" class="builder-field-help"></p></div></div></div></details>
+        <details class="builder-group"><summary>Effekte</summary><div class="builder-group-body"><p class="builder-group-help">Hall gibt Raum, Kompression gleicht Lautstärkeunterschiede aus und Verzerrung macht den Klang rauer.</p><div class="builder-fields"><div class="builder-field"><label for="builder_reverb">Hall</label><select id="builder_reverb" aria-describedby="builder_help_reverb">
+                            <option value="dry">Trocken</option>
+                            <option value="minimal">Minimal</option>
+                            <option value="natural" selected>Natürlich</option>
+                            <option value="room">Raum</option>
+                            <option value="hall">Halle</option>
+                            <option value="large">Großer Raum</option>
+                        </select><p id="builder_help_reverb" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_compression">Kompression</label><select id="builder_compression" aria-describedby="builder_help_compression">
+                            <option value="minimal">Minimal</option>
+                            <option value="light" selected>Leicht</option>
+                            <option value="medium">Mittel</option>
+                            <option value="heavy">Stark</option>
+                            <option value="pumping">Pumpend</option>
+                        </select><p id="builder_help_compression" class="builder-field-help"></p></div>
+<div class="builder-field"><label for="builder_distortion">Verzerrung</label><select id="builder_distortion" aria-describedby="builder_help_distortion">
+                            <option value="none" selected>Keine</option>
+                            <option value="subtle">Dezent</option>
+                            <option value="warm">Warm</option>
+                            <option value="crunchy">Rau</option>
+                            <option value="gritty">Körnig</option>
+                        </select><p id="builder_help_distortion" class="builder-field-help"></p></div></div></div></details>
+        </div></div>
+      </div>
+      <div id="builderFullPanel" role="tabpanel" aria-labelledby="builderFullTab" hidden>
+        <div id="builderProfileHome"><details id="builderSongProfile" class="builder-group" open><summary>Songprofil</summary><div class="builder-group-body"><div class="builder-fields"><div class="builder-field"><label for="builder_song_style">Genre / Stil</label><input type="text" id="builder_song_style" placeholder="z. B. Dark Pop, Hip-Hop, EDM"></div>
+<div class="builder-field"><label for="builder_song_mood">Stimmung</label><input type="text" id="builder_song_mood" placeholder="z. B. euphorisch, düster, ruhig"></div>
+<div class="builder-field"><label for="builder_song_influences">Einflüsse · mit Komma trennen</label><input type="text" id="builder_song_influences" placeholder="z. B. The Weeknd, Daft Punk, Adele"></div>
+<div class="builder-field"><label for="builder_song_tempo">Tempo</label><input type="text" id="builder_song_tempo" placeholder="z. B. 120 BPM, langsam, schnell"></div>
+<div class="builder-field"><label for="builder_song_key">Tonart</label><input type="text" id="builder_song_key" placeholder="z. B. C Major, A Minor"></div>
+<div class="builder-field builder-field-wide"><label for="builder_song_description">Songbeschreibung</label><textarea id="builder_song_description" rows="3" placeholder="Was soll den Song ausmachen?"></textarea></div></div></div></details>
+        </div><div id="builderStructureHome"><div id="builderStructureSettings">
+        <div class="builder-section-heading"><h3>Songabschnitte</h3><span>In Reihenfolge von oben nach unten</span></div>
+        <div id="builderSections" class="builder-sections"></div>
+        <button type="button" id="builderAddSectionButton" class="builder-add">+ Abschnitt hinzufügen</button>
+        </div></div>
+      </div>
+      <div id="builderPersonaPanel" role="tabpanel" aria-labelledby="builderPersonaTab" hidden>
+        <div id="builderVoiceHome"><div id="builderVoiceSettings" class="builder-card builder-persona-card">
+          <h3 class="builder-subheading">Stimme & Persona</h3><p class="builder-group-help">Beschreibe die gewünschte Stimme. Eine echte Suno-Persona wählst du weiterhin in Suno.</p>
+          <div class="builder-range"><label for="builder_persona_weight"><span>Stimmcharakter</span><output id="builder_persona_weight_value" for="builder_persona_weight">0.8</output></label><input type="range" id="builder_persona_weight" min="0" max="1" step="0.1" value="0.8"><p>0 = kaum ausgeprägt · 1 = voller Charakter</p></div>
+          <div class="builder-range"><label for="builder_persona_intensity"><span>Gesangsintensität</span><output id="builder_persona_intensity_value" for="builder_persona_intensity">0.9</output></label><input type="range" id="builder_persona_intensity" min="0" max="1" step="0.1" value="0.9"><p>0 = zurückhaltend · 1 = emotional und kraftvoll</p></div>
+          <div class="builder-range"><label for="builder_persona_grain"><span>Raue Stimme</span><output id="builder_persona_grain_value" for="builder_persona_grain">0.1</output></label><input type="range" id="builder_persona_grain" min="0" max="1" step="0.1" value="0.1"><p>0 = glatt und klar · 1 = rau und körnig</p></div>
+          <div class="builder-range"><label for="builder_persona_clarity"><span>Aussprache</span><output id="builder_persona_clarity_value" for="builder_persona_clarity">1.0</output></label><input type="range" id="builder_persona_clarity" min="0" max="1" step="0.1" value="1"><p>0 = luftig und undeutlich · 1 = klare Aussprache</p></div>
+          <div class="builder-range"><label for="builder_persona_tone_shift"><span>Tonhöhenverschiebung</span><output id="builder_persona_tone_shift_value" for="builder_persona_tone_shift">0.0</output></label><input type="range" id="builder_persona_tone_shift" min="-1" max="1" step="0.1" value="0"><p>−1 = tiefer · 0 = original · 1 = höher</p></div>
+          <div class="builder-range"><label for="builder_persona_vibrato"><span>Vibrato</span><output id="builder_persona_vibrato_value" for="builder_persona_vibrato">0.2</output></label><input type="range" id="builder_persona_vibrato" min="0" max="1" step="0.1" value="0.2"><p>0 = gerade Töne · 1 = ausgeprägtes Vibrato</p></div>
+          <div class="builder-field"><label for="builder_persona_style_hint">Stilhinweis</label><input type="text" id="builder_persona_style_hint" placeholder="z. B. male_rock, female_jazz, breathy_indie" value="female_dark_pop"></div>
+        </div></div>
+      </div>
+    </div>
+    <aside class="builder-output-card" aria-label="Erstellter Prompt">
+      <div class="builder-output-head"><h3 id="builderOutputTitle">Prompt</h3><span id="builderOutputCount" class="builder-count">0 Zeichen</span></div>
+      <textarea id="builderOutput" readonly spellcheck="false" aria-labelledby="builderOutputTitle"></textarea>
+      <div class="builder-output-actions">
+        <button type="button" id="builderCopyButton" class="primary"><span id="builderCopyLabel">Prompt kopieren</span></button>
+        <button type="button" id="builderPreviewButton">JSON-Vorschau</button>
+        <button type="button" id="builderResetButton" class="clear">Zurücksetzen</button>
+      </div>
+      <p id="builderStatus" class="builder-status" role="status" aria-live="polite" hidden></p>
+      <p class="builder-live-note">Die Ausgabe aktualisiert sich automatisch.</p>
+    </aside>
+  </div>
+  <dialog id="builderPreviewDialog" class="builder-preview-dialog" aria-labelledby="builderPreviewTitle">
+    <div class="builder-preview-head"><h2 id="builderPreviewTitle">JSON-Vorschau</h2><button type="button" id="builderClosePreviewButton" aria-label="Vorschau schließen">Schließen</button></div>
+    <pre id="builderPreviewJSON"></pre>
+  </dialog>
+</section>
+
+
+</main>
+
+<div class="mobile-actions" aria-label="Schnellaktionen">
+  <button type="button" class="primary" id="mobileConvertButton"><span id="mobileConvertLabel">Umwandeln &amp; kopieren</span></button>
+</div>
+
+<dialog id="focusDialog" class="focus-dialog" aria-labelledby="focusTitle">
+  <div class="focus-header"><h2 id="focusTitle">Lyrics</h2><div><button type="button" class="primary" id="focusConvertButton"><span id="focusConvertLabel">Umwandeln &amp; kopieren</span></button><button type="button" id="closeEditorButton" aria-label="Editor schließen">Schließen</button></div></div>
+  <div id="focusStatus" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+</dialog>
+
+<dialog id="clearSiteDataDialog" class="site-data-dialog" aria-labelledby="clearSiteDataTitle" aria-describedby="clearSiteDataDescription clearSiteDataWarning">
+  <h2 id="clearSiteDataTitle">Alle lokalen Daten löschen?</h2>
+  <p id="clearSiteDataDescription">Entwürfe, Ergebnisse, eigene Schutzwörter und Einstellungen aus allen drei Bereichen dieser Website werden gelöscht.</p>
+  <p id="clearSiteDataWarning">Auch der Rückgängig-Verlauf wird entfernt. Das kann nicht rückgängig gemacht werden.</p>
+  <div class="site-data-dialog-actions"><button type="button" id="cancelClearSiteDataButton" autofocus>Abbrechen</button><button type="button" id="confirmClearSiteDataButton">Alles löschen</button></div>
+</dialog>
+
+
+<script>
+
+/* =========================================================
+   KONFIGURATION
+========================================================= */
+
+const INVISIBLE = "\u200B";
+const CHARACTER_OPTIONS = {
+  zwsp: { character: INVISIBLE, label: 'U+200B' },
+  feff: { character: '\uFEFF', label: 'U+FEFF' },
+  wordJoiner: { character: '\u2060', label: 'U+2060' },
+  mix: { characters: ['\u200B', '\uFEFF'], label: 'Mix im Wort' },
+  reference: { label: 'Vollständiger Mix' }
+};
+const MARKER_OPTIONS = {
+  '\u200B': { symbol: '·', className: 'marker-zwsp', label: 'U+200B', legend: 'marker200BLegend' },
+  '\uFEFF': { symbol: '○', className: 'marker-feff', label: 'U+FEFF', legend: 'markerFEFFLegend' },
+  '\u2060': { symbol: '¦', className: 'marker-wordJoiner', label: 'U+2060', legend: 'marker2060Legend' }
+};
+
+/*
+  Die drei Testzeichen außerhalb von Tags entfernen.
+  Andere Zeichen (z. B. Emoji-Verbindungen) und Tags bleiben erhalten.
+*/
+
+const INVISIBLE_REGEX =
+  /[\u200B\uFEFF\u2060]/g;
+
+const WORD_REGEX = /\p{L}[\p{L}\p{M}]*(?:['’]\p{L}[\p{L}\p{M}]*)*/gu;
+const THRESHOLDS = { verySafe: 3, safe: 6, balanced: 10, aggressive: 15, selective: 18 };
+const PREVIEW_BATCH_SIZE = 1000;
+const MAX_PREVIEW_CHARACTERS = 12000;
+const MAX_WORD_PREVIEW_CHARACTERS = 600;
+const MAX_INVISIBLE_WIDTH = 100;
+// Bound the final result before creating invisible-character strings.
+const MAX_OUTPUT_LENGTH = 500000;
+let conversionSizeError = '';
+let lastConvertedSettings = null;
+let invisibleWidth = 1;
+let invisibleType = 'zwsp';
+let randomSeed = 0;
+let customWidthMode = false;
+let customInvisibleWidth = 1;
+let lastPlan = null;
+let selectedTokenIndex = null;
+let undoClearState = null;
+let customWordsCheckpoint = '';
+let customEditInProgress = false;
+let settingsCheckTimer = null;
+let bracketCheckedInput = null;
+let bracketCheckedLine = null;
+let draftSaveTimer = null;
+let draftDirty = false;
+let analysisDirty = true;
+let analysisVisibleTokenCount = PREVIEW_BATCH_SIZE;
+let selectedTokenElement = null;
+let copyRequest = 0;
+const copyFeedbackTimers = new Map();
+const COPY_LABELS = {
+  convertButton: ['convertLabel', 'Umwandeln & kopieren'],
+  mobileConvertButton: ['mobileConvertLabel', 'Umwandeln & kopieren'],
+  focusConvertButton: ['focusConvertLabel', 'Umwandeln & kopieren'],
+  copyButton: ['copyLabel', 'Kopieren'],
+  jsonConvertButton: ['jsonConvertLabel', 'JSON umwandeln & kopieren'],
+  jsonCopyButton: ['jsonCopyLabel', 'JSON kopieren'],
+  builderCopyButton: ['builderCopyLabel', 'Prompt kopieren']
+};
+let scrollSyncFrame = null;
+let pendingScrollSync = null;
+let scrollSource = null;
+let synchronizedPositions = new WeakMap();
+let closingEditorPositions = null;
+const DRAFT_KEY = 'lyrics-editor-draft-v1';
+const JSON_DRAFT_KEY = 'lyrics-json-draft-v1';
+const ACTIVE_TOOL_KEY = 'lyrics-active-tool-v1';
+let clearingSiteData = false;
+let activeTool = 'spacer';
+let jsonConvertedInput = null;
+let jsonFormat = 'standard';
+let jsonConvertedFormat = null;
+let jsonConvertedStandardLength = null;
+const JSON_FORMATS = {
+  standard: { example: '[ { "type": "Intro", "lyrics": [ … ] } ]', note: 'Abschnitte und Zeilen, übersichtlich eingerückt.' },
+  compact: { example: '[{"type":"Intro","lyrics":["Zeile 1","Zeile 2"]}]', note: 'Gleiche Struktur wie Standard, ohne Einrückung.' },
+  sections: { example: '[{"Intro":["Zeile 1","Zeile 2"]}]', note: 'Abschnittsname als Schlüssel, ohne type und lyrics.' },
+  sectionText: { example: '[{"Intro":"Zeile 1\\nZeile 2"}]', note: 'Ein Text pro Abschnitt statt einzelner Zeileneinträge.' },
+  pairs: { example: '[["Intro",["Zeile 1","Zeile 2"]]]', note: 'Abschnittsname und Zeilen als Listenpaar.' }
+};
+let jsonSizeError = '';
+let jsonDraftSaveTimer = null;
+let jsonDraftDirty = false;
+const VALID_MODES = ['safe', 'balanced', 'selective', 'all'];
+const LEGACY_MODES = new Map([['verySafe', 'safe'], ['aggressive', 'balanced']]);
+
+
+/* =========================================================
+   HÄUFIGE WÖRTER IMMER SCHÜTZEN
+========================================================= */
+
+const COMMON_PROTECTED_WORDS = new Set([
+
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+
+  "be",
+  "been",
+  "but",
+  "by",
+
+  "can",
+  "could",
+
+  "did",
+  "do",
+  "does",
+
+  "for",
+  "from",
+
+  "had",
+  "has",
+  "have",
+  "he",
+  "her",
+  "hers",
+  "him",
+  "his",
+  "how",
+
+  "i",
+  "if",
+  "in",
+  "is",
+  "it",
+  "its",
+
+  "me",
+  "my",
+
+  "no",
+  "not",
+
+  "of",
+  "on",
+  "or",
+  "our",
+  "out",
+
+  "she",
+  "so",
+
+  "than",
+  "that",
+  "the",
+  "their",
+  "them",
+  "then",
+  "there",
+  "they",
+  "this",
+  "to",
+
+  "up",
+  "us",
+
+  "was",
+  "we",
+  "were",
+  "what",
+  "when",
+  "where",
+  "which",
+  "who",
+  "why",
+  "will",
+  "with",
+  "would",
+
+  "you",
+  "your"
+
+]);
+
+
+/* =========================================================
+   BEKANNTE EMPFINDLICHE WÖRTER
+========================================================= */
+
+const KNOWN_RISKY_WORDS = new Set([
+
+  "ready",
+
+  "friend",
+  "friends",
+
+  "doing",
+  "going",
+
+  "patience",
+  "patient",
+
+  "running",
+  "waiting",
+  "sleeping",
+  "lying",
+  "taking",
+
+  "thought",
+  "though",
+  "through",
+  "enough",
+  "rough",
+  "tough",
+
+  "would",
+  "could",
+  "should",
+
+  "heart",
+  "heard",
+
+  "word",
+  "words",
+
+  "girl",
+  "girls",
+
+  "love",
+  "loved",
+
+  "eyes",
+
+  "move",
+  "moving",
+
+  "gone",
+
+  "give",
+
+  "believe",
+
+  "believed",
+
+  "chase",
+  "chased",
+
+  "crave",
+  "craved",
+
+  "people",
+
+  "every",
+
+  "never",
+
+  "again",
+
+  "really",
+
+  "because",
+
+  "before",
+
+  "around",
+
+  "without",
+
+  "once",
+
+  "wanted",
+
+  "wasted",
+
+  "heavy",
+
+  "leave",
+
+  "please",
+
+  "piece",
+
+  "field",
+
+  "feel",
+
+  "need",
+
+  "needless",
+
+  "dream",
+
+  "dreaming",
+
+  "mean",
+
+  "meaning",
+
+  "break",
+
+  "great",
+
+  "said",
+
+  "says",
+
+  "woman",
+
+  "women",
+
+  "one",
+
+  "done"
+
+]);
+
+
+
+
+/* =========================================================
+   NORMALISIEREN
+========================================================= */
+
+function normalizeWord(word) {
+
+  return word
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/’/g, "'");
+
+}
+
+
+/* =========================================================
+   INVISIBLE ENTFERNEN
+========================================================= */
+
+function removeInvisibleCharacters(text) {
+
+  return splitTags(text).map(part => part.isTag
+    ? part.text
+    : part.text.replace(INVISIBLE_REGEX, "")
+  ).join("");
+
+}
+
+
+/* =========================================================
+   EIGENE SCHUTZLISTE
+========================================================= */
+
+function getCustomProtectedWords() {
+
+  const text =
+    document.getElementById("customWords").value;
+
+  return new Set(
+    (text.replace(INVISIBLE_REGEX, "").match(WORD_REGEX) || [])
+      .map(normalizeWord)
+  );
+
+}
+
+
+/* =========================================================
+   AUSSPRACHE-RISIKO
+========================================================= */
+
+const RISK_PATTERNS = [
+  [/(ing|ings)$/i, 12], [/(tion|tions|sion|sions|cian)$/i, 12],
+  [/(ience|iences|ient|ients)/i, 15], [/ea/i, 10], [/(ie|ei)/i, 10],
+  [/ee/i, 8], [/oo/i, 8], [/(ou|ow)/i, 8], [/(ough|augh)/i, 20],
+  [/igh/i, 15], [/(ai|ay)/i, 7], [/(oi|oy)/i, 7], [/oa/i, 7],
+  [/(ue|ui)/i, 7], [/(th|sh|ch|ph|wh|qu)/i, 6], [/(kn|wr|gn)/i, 10],
+  [/gh/i, 10], [/(nds|rds|lds|ds)$/i, 10], [/(sts|nts)$/i, 8],
+  [/(mb|mn)$/i, 8], [/ed$/i, 8], [/(es|ies)$/i, 6], [/(er|ers)$/i, 3],
+  [/ly$/i, 4], [/(ness|ment)$/i, 5], [/(ful|less)$/i, 5],
+  [/(able|ible)$/i, 5], [/(ive|ives)$/i, 5], [/(ity|ities)$/i, 5],
+  [/(ary|ery|ory)$/i, 5], [/ure$/i, 5], [/(air|ear|eer)/i, 8],
+  [/[aeiou]{3}/i, 8], [/([bcdfghjklmnpqrstvwxyz])\1/i, 4]
+];
+
+function pronunciationRisk(word) {
+  const w = normalizeWord(word);
+  let score = 0;
+  if (KNOWN_RISKY_WORDS.has(w)) score += 100;
+  if (COMMON_PROTECTED_WORDS.has(w)) score += 100;
+  if (w.length <= 2) score += 10;
+  else if (w.length === 3) score += 4;
+  if (w.includes("'")) score += 20;
+  for (const [pattern, weight] of RISK_PATTERNS) {
+    if (pattern.test(w)) score += weight;
+  }
+  if (w.length >= 8) score += 2;
+  if (w.length >= 11) score += 4;
+  return score;
+}
+
+/* Tags remain exact, even when nested, multiline or unfinished. */
+function splitTags(text) {
+  const parts = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '[') {
+      if (depth === 0) {
+        if (i > start) parts.push({ text: text.slice(start, i), isTag: false });
+        start = i;
+      }
+      depth++;
+    } else if (text[i] === ']' && depth > 0) {
+      depth--;
+      if (depth === 0) {
+        parts.push({ text: text.slice(start, i + 1), isTag: true });
+        start = i + 1;
+      }
+    }
+  }
+  if (start < text.length) parts.push({ text: text.slice(start), isTag: depth > 0 });
+  return parts;
+}
+
+function findUnclosedBracket(text) {
+  let depth = 0;
+  let firstOpenLine = null;
+  let line = 1;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '\r') {
+      line++;
+      if (text[i + 1] === '\n') i++;
+    } else if (text[i] === '\n' || text[i] === '\u2028' || text[i] === '\u2029') {
+      line++;
+    } else if (text[i] === '[') {
+      if (depth === 0) firstOpenLine = line;
+      depth++;
+    } else if (text[i] === ']' && depth > 0) {
+      depth--;
+      if (depth === 0) firstOpenLine = null;
+    }
+  }
+  return firstOpenLine;
+}
+
+function getUnclosedBracketLine(text) {
+  if (text !== bracketCheckedInput) {
+    bracketCheckedLine = findUnclosedBracket(text);
+    bracketCheckedInput = text;
+  }
+  return bracketCheckedLine;
+}
+
+function protectionReason(word, customWords, threshold, riskForWord = pronunciationRisk) {
+  const normalized = normalizeWord(word);
+  if (customWords.has(normalized)) return 'Geschützt: eigene Schutzliste.';
+  if (COMMON_PROTECTED_WORDS.has(normalized)) return 'Geschützt: häufiges englisches Wort.';
+  if (KNOWN_RISKY_WORDS.has(normalized)) return 'Geschützt: Wort aus der Aussprache-Schutzliste.';
+  if (!/^[a-z]+(?:'[a-z]+)*$/i.test(normalized)) return 'Geschützt: Sonderzeichen oder andere Schrift.';
+  if ([...normalized].length <= 1) return 'Unverändert: einzelner Buchstabe.';
+  const risk = riskForWord(word);
+  return risk >= threshold ? 'Geschützt: Musterwert ' + risk + ' erreicht den Schutzwert ' + threshold + '.' : '';
+}
+
+function isValidInvisibleWidth(width) {
+  return Number.isInteger(width) && width >= 1 && width <= MAX_INVISIBLE_WIDTH;
+}
+
+function normalizeInvisibleWidth(width) {
+  return isValidInvisibleWidth(width) ? width : 1;
+}
+
+function customWidthIsInvalid() {
+  return customWidthMode && !isValidInvisibleWidth(Number(document.getElementById('customWidth').value));
+}
+
+function normalizeCharacterType(type) {
+  return typeof type === 'string' && Object.hasOwn(CHARACTER_OPTIONS, type) ? type : 'zwsp';
+}
+
+function normalizeRandomSeed(seed) {
+  return Number.isInteger(seed) && seed >= 0 && seed <= 0xFFFFFFFF ? seed : 0;
+}
+
+// Keep a random selection reproducible for reload, undo and character comparisons.
+function createSeededRandom(seed) {
+  let state = normalizeRandomSeed(seed);
+  return () => {
+    state = (state + 0x6D2B79F5) >>> 0;
+    let value = Math.imul(state ^ (state >>> 15), 1 | state);
+    value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
+    return ((value ^ (value >>> 14)) >>> 0) / 0x100000000;
+  };
+}
+
+function nextRandomSeed(previous) {
+  const seed = Math.floor(Math.random() * 0x100000000);
+  return seed === previous ? (seed + 1) >>> 0 : seed;
+}
+
+function columnAfterText(text, column) {
+  const lastBreak = Math.max(text.lastIndexOf('\r'), text.lastIndexOf('\n'), text.lastIndexOf('\u2028'), text.lastIndexOf('\u2029'));
+  return lastBreak < 0 ? column + text.length : text.length - lastBreak - 1;
+}
+
+function createWordSpacer(width, characterType, markerCounts) {
+  if (characterType === 'reference') {
+    const characters = [INVISIBLE, '\uFEFF'];
+    const separators = characters.map(character => character.repeat(width));
+    return token => token.original.replace(/\p{L}\p{M}*/gu, (letters, index) => {
+      const phase = (token.referenceColumn + index) % 2;
+      markerCounts[characters[phase]] += width;
+      return letters + separators[phase];
+    });
+  }
+  const option = CHARACTER_OPTIONS[characterType];
+  if (option.characters) {
+    const [first, second] = option.characters;
+    const pairs = Math.floor(width / 2);
+    const odd = width % 2;
+    const separators = [(first + second).repeat(pairs) + (odd ? first : ''), (second + first).repeat(pairs) + (odd ? second : '')];
+    return token => {
+      // Each word starts with the first marker and alternates across every gap.
+      markerCounts[first] += Math.ceil(token.cost / 2);
+      markerCounts[second] += Math.floor(token.cost / 2);
+      let gap = 0;
+      return token.original.replace(/(\p{L}\p{M}*)(?=\p{L})/gu, letters => letters + separators[(gap++ * odd) % 2]);
+    };
+  }
+  const replacement = '$1' + option.character.repeat(width);
+  return token => {
+    markerCounts[option.character] += token.cost;
+    return token.original.replace(/(\p{L}\p{M}*)(?=\p{L})/gu, replacement);
+  };
+}
+
+function wordProtectionReason(word, customWords, mode, riskForWord = pronunciationRisk, characterType = invisibleType) {
+  if (mode === 'all' || characterType === 'reference') return '';
+  const normalized = normalizeWord(word);
+  if (customWords.has(normalized)) return 'Geschützt: eigene Schutzliste.';
+  if (mode === 'selective') {
+    if (!/^[a-z]+$/i.test(word)) return 'Geschützt: Apostroph oder andere Schrift.';
+    if (word.length < 2) return 'Unverändert: einzelner Buchstabe.';
+    return '';
+  }
+  return protectionReason(word, customWords, THRESHOLDS[mode] ?? THRESHOLDS.selective, riskForWord);
+}
+
+function checkOutputSize(length) {
+  if (length <= MAX_OUTPUT_LENGTH) return;
+  const error = new RangeError('Output exceeds the maximum size.');
+  error.code = 'OUTPUT_TOO_LARGE';
+  error.estimatedLength = length;
+  throw error;
+}
+
+// Outside "all", whole words are selected within the available budget.
+// Text and tags are never truncated to meet a limit.
+function buildConversionPlan(original, customWords, mode, width, limit, budgetEnabled, characterType = invisibleType, randomSeed = null) {
+  width = normalizeInvisibleWidth(width);
+  characterType = normalizeCharacterType(characterType);
+  const reference = characterType === 'reference';
+  if (reference) {
+    mode = 'all';
+    randomSeed = null;
+  }
+  randomSeed = randomSeed === null ? null : normalizeRandomSeed(randomSeed);
+  const random = randomSeed === null ? null : createSeededRandom(randomSeed);
+  budgetEnabled = budgetEnabled && mode !== 'all';
+  const riskCache = new Map();
+  const riskForWord = word => {
+    const key = normalizeWord(word);
+    if (!riskCache.has(key)) riskCache.set(key, pronunciationRisk(word));
+    return riskCache.get(key);
+  };
+  let removedCount = 0;
+  const parts = splitTags(original).map(part => {
+    if (part.isTag) return part;
+    const clean = part.text.replace(INVISIBLE_REGEX, '');
+    removedCount += part.text.length - clean.length;
+    return { text: clean, isTag: false };
+  });
+  const cleanLength = parts.reduce((total, part) => total + part.text.length, 0);
+  checkOutputSize(cleanLength);
+  const costCache = new Map();
+  const insertionCost = word => {
+    if (!costCache.has(word)) {
+      const pattern = reference ? /\p{L}\p{M}*/gu : /(\p{L}\p{M}*)(?=\p{L})/gu;
+      let count = 0;
+      for (const match of word.matchAll(pattern)) count++;
+      costCache.set(word, count * width);
+    }
+    return costCache.get(word);
+  };
+  const tokens = [];
+  const candidates = random || budgetEnabled ? [] : null;
+  let selectedCount = 0;
+  let addedCount = 0;
+  let textOffset = 0;
+  let lineColumn = 0;
+  for (const part of parts) {
+    const partOffset = textOffset;
+    textOffset += part.text.length;
+    if (part.isTag) {
+      tokens.push({ kind: 'tag', original: part.text, text: part.text, reason: 'Tag: exakt unverändert.' });
+      if (reference) lineColumn = columnAfterText(part.text, lineColumn);
+      continue;
+    }
+    let cursor = 0;
+    for (const match of part.text.matchAll(WORD_REGEX)) {
+      const word = match[0];
+      if (match.index > cursor) {
+        const plain = part.text.slice(cursor, match.index);
+        tokens.push({ kind: 'plain', text: plain });
+        if (reference) lineColumn = columnAfterText(plain, lineColumn);
+      }
+      const protection = wordProtectionReason(word, customWords, mode, riskForWord, characterType);
+      const cost = protection ? 0 : insertionCost(word);
+      const reason = protection || (cost === 0 ? 'Unverändert: keine benachbarten Buchstaben.' : reference
+        ? 'Verändert: Zeichen nach jedem Buchstaben, Wechsel nach Position in der Zeile.'
+        : mode === 'all' ? 'Verändert: alle Wörter.' : 'Verändert: Abstände nur zwischen den Buchstaben.');
+      const randomSelected = random ? random() < 0.5 : true;
+      const token = {
+        kind: cost > 0 ? 'modified' : reason.startsWith('Unverändert:') ? 'unchanged' : 'protected',
+        original: word, text: word, reason,
+        normalized: normalizeWord(word), randomSelected,
+        offset: partOffset + match.index, cost, referenceColumn: lineColumn
+      };
+      tokens.push(token);
+      if (cost > 0) {
+        addedCount += cost;
+        if (candidates) candidates.push(token);
+        if (randomSelected) selectedCount++;
+      }
+      cursor = match.index + word.length;
+      if (reference) lineColumn += word.length;
+    }
+    if (cursor < part.text.length) {
+      const plain = part.text.slice(cursor);
+      tokens.push({ kind: 'plain', text: plain });
+      if (reference) lineColumn = columnAfterText(plain, lineColumn);
+    }
+  }
+  if (random) {
+    // A usable selection changes at least one word; with multiple candidates it leaves some plain.
+    if (candidates.length && selectedCount === 0) candidates[Math.floor(random() * candidates.length)].randomSelected = true;
+    if (candidates.length > 1 && selectedCount === candidates.length) candidates[Math.floor(random() * candidates.length)].randomSelected = false;
+    for (const token of candidates) {
+      if (token.randomSelected) continue;
+      addedCount -= token.cost;
+      token.kind = 'random-skipped';
+      token.reason = 'Zufällig ausgelassen: bei dieser Umwandlung unverändert.';
+    }
+  }
+  if (budgetEnabled) {
+    let available = Math.max(0, limit - cleanLength);
+    if (!(addedCount <= available)) {
+      const eligible = random ? candidates.filter(token => token.kind === 'modified') : candidates;
+      if (available > 0) {
+        for (const token of eligible) token.risk = riskForWord(token.original);
+        eligible.sort((a, b) => a.risk - b.risk || a.cost - b.cost || a.offset - b.offset);
+      }
+      for (const token of eligible) {
+        if (token.cost <= available) {
+          available -= token.cost;
+        } else {
+          addedCount -= token.cost;
+          token.kind = 'protected';
+          token.reason = 'Geschützt: Zeichenlimit.';
+          token.budgetSkipped = true;
+        }
+      }
+    }
+  }
+  checkOutputSize(cleanLength + addedCount);
+  const markerCounts = { '\u200B': 0, '\uFEFF': 0, '\u2060': 0 };
+  const spaceWord = createWordSpacer(width, characterType, markerCounts);
+  let protectedCount = 0;
+  let unchangedCount = 0;
+  let modifiedCount = 0;
+  let tagCount = 0;
+  let budgetSkippedCount = 0;
+  let randomSkippedCount = 0;
+  const resultParts = [];
+  for (const token of tokens) {
+    if (token.kind === 'modified') {
+      modifiedCount++;
+      token.text = spaceWord(token);
+    } else if (token.kind === 'protected') protectedCount++;
+    else if (token.kind === 'unchanged') unchangedCount++;
+    else if (token.kind === 'tag') tagCount++;
+    else if (token.kind === 'random-skipped') randomSkippedCount++;
+    if (token.budgetSkipped) budgetSkippedCount++;
+    resultParts.push(token.text);
+  }
+  const result = resultParts.join('');
+  return {
+    original, result, tokens, cleanLength, removedCount, limit, budgetEnabled, mode, characterType, randomSeed, markerCounts,
+    protectedCount,
+    unchangedCount,
+    modifiedCount,
+    tagCount,
+    budgetSkippedCount,
+    randomSkippedCount,
+    addedCount
+  };
+}
+
+function getCharacterLimit() {
+  const value = Number(document.getElementById('characterLimit').value);
+  return Number.isFinite(value) && value >= 1 && value <= 100000 ? Math.floor(value) : 5000;
+}
+
+function getConversionSettings() {
+  return {
+    input: document.getElementById('input').value,
+    customWords: document.getElementById('customWords').value,
+    mode: document.getElementById('mode').value,
+    width: invisibleWidth,
+    characterType: invisibleType,
+    randomizeWords: document.getElementById('randomizeWords').checked,
+    randomSeed: document.getElementById('randomizeWords').checked ? randomSeed : 0,
+    limit: getCharacterLimit(),
+    limitText: document.getElementById('characterLimit').value,
+    budgetEnabled: document.getElementById('budgetEnabled').checked
+  };
+}
+
+function resultIsStale() {
+  if (!lastConvertedSettings) return false;
+  if (conversionSizeError) return true;
+  if (customWidthIsInvalid()) return true;
+  const settings = getConversionSettings();
+  return Object.keys(lastConvertedSettings).some(key => settings[key] !== lastConvertedSettings[key]);
+}
+
+function readDraft() {
+  return { ...getConversionSettings(),
+    widthMode: customWidthMode ? 'custom' : 'preset',
+    customWidth: customInvisibleWidth,
+    showInvisible: document.getElementById('showInvisible').checked,
+    syncScroll: document.getElementById('syncScroll').checked
+  };
+}
+
+function normalizeDraft(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  return {
+    input: typeof value.input === 'string' ? value.input : '',
+    customWords: typeof value.customWords === 'string' ? value.customWords : '',
+    mode: VALID_MODES.includes(value.mode) ? value.mode : LEGACY_MODES.get(value.mode) || 'selective',
+    width: normalizeInvisibleWidth(value.width),
+    characterType: normalizeCharacterType(value.characterType),
+    randomizeWords: value.randomizeWords === true,
+    randomSeed: normalizeRandomSeed(value.randomSeed),
+    widthMode: value.widthMode === 'custom' || normalizeInvisibleWidth(value.width) > 2 ? 'custom' : 'preset',
+    customWidth: normalizeInvisibleWidth(value.customWidth ?? (value.widthMode === 'custom' || normalizeInvisibleWidth(value.width) > 2 ? value.width : 1)),
+    limit: typeof value.limit === 'number' && Number.isFinite(value.limit) && value.limit >= 1 && value.limit <= 100000 ? Math.floor(value.limit) : 5000,
+    budgetEnabled: value.budgetEnabled !== false,
+    showInvisible: value.showInvisible === true,
+    syncScroll: value.syncScroll !== false
+  };
+}
+
+function applyDraft(draft) {
+  document.getElementById('input').value = draft.input;
+  document.getElementById('customWords').value = draft.customWords;
+  document.getElementById('mode').value = draft.mode;
+  invisibleWidth = draft.width;
+  invisibleType = normalizeCharacterType(draft.characterType);
+  document.getElementById('randomizeWords').checked = draft.randomizeWords === true;
+  randomSeed = normalizeRandomSeed(draft.randomSeed);
+  updateCharacterControls();
+  customWidthMode = draft.widthMode === 'custom' || invisibleWidth > 2;
+  customInvisibleWidth = customWidthMode ? invisibleWidth : normalizeInvisibleWidth(draft.customWidth);
+  updateWidthControls(true);
+  document.getElementById('characterLimit').value = String(draft.limit);
+  document.getElementById('budgetEnabled').checked = draft.budgetEnabled;
+  document.getElementById('showInvisible').checked = draft.showInvisible;
+  document.getElementById('syncScroll').checked = draft.syncScroll;
+  customWordsCheckpoint = draft.customWords;
+  customEditInProgress = false;
+  resetScrollSynchronization();
+}
+
+function setNodeValue(node, property, value) {
+  if (node[property] !== value) node[property] = value;
+}
+
+function setDraftStatus(message) {
+  const status = document.getElementById('draftStatus');
+  setNodeValue(status, 'textContent', message);
+  setNodeValue(status, 'hidden', !message);
+}
+
+function saveDraft() {
+  if (clearingSiteData) return false;
+  draftDirty = true;
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = null;
+  customWordsCheckpoint = document.getElementById('customWords').value;
+  customEditInProgress = false;
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, draft: readDraft(), converted: lastConvertedSettings, undo: undoClearState }));
+    draftDirty = false;
+    setDraftStatus('Lokal gespeichert');
+    return true;
+  } catch {
+    setDraftStatus('Speichern nicht verfügbar');
+    return false;
+  }
+}
+
+function scheduleDraftSave() {
+  if (clearingSiteData) return;
+  draftDirty = true;
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(saveDraft, 500);
+  setDraftStatus('Speichert …');
+}
+
+function cancelSettingsCheck() {
+  clearTimeout(settingsCheckTimer);
+  settingsCheckTimer = null;
+}
+
+function flushDraft() {
+  if (settingsCheckTimer !== null) {
+    cancelSettingsCheck();
+    refreshResultState();
+  }
+  if (draftDirty) saveDraft();
+}
+
+function rememberUndo(action, customWordsBefore) {
+  undoClearState = {
+    draft: readDraft(),
+    converted: lastConvertedSettings,
+    analysisOpen: document.getElementById('analysisPanel').open,
+    action
+  };
+  if (customWordsBefore !== undefined) undoClearState.draft.customWords = customWordsBefore;
+  updateUndoButton();
+}
+
+function updateUndoButton() {
+  const button = document.getElementById('undoClearButton');
+  setNodeValue(button, 'hidden', !undoClearState);
+  setNodeValue(button, 'title', undoClearState ? (undoClearState.action || 'Leeren') + ' rückgängig machen' : 'Rückgängig');
+}
+
+function restoreSnapshot(snapshot) {
+  cancelSettingsCheck();
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = null;
+  document.getElementById('analysisPanel').open = false;
+  resetResult();
+  if (snapshot.converted && snapshot.converted.input) {
+    applyDraft({ ...snapshot.draft, ...snapshot.converted, showInvisible: snapshot.draft.showInvisible, syncScroll: snapshot.draft.syncScroll });
+    convertText({ save: false, keepRandomSelection: true });
+  }
+  applyDraft(snapshot.draft);
+  document.getElementById('analysisPanel').open = snapshot.analysisOpen === true;
+  renderAnalysis();
+  refreshResultState();
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || saved.version !== 1) return;
+    const draft = normalizeDraft(saved.draft);
+    if (!draft) return;
+    restoreSnapshot({ draft, converted: normalizeDraft(saved.converted), analysisOpen: false });
+    if (saved.undo) {
+      const undoDraft = normalizeDraft(saved.undo.draft);
+      if (undoDraft) undoClearState = { draft: undoDraft, converted: normalizeDraft(saved.undo.converted), analysisOpen: saved.undo.analysisOpen === true, action: typeof saved.undo.action === 'string' ? saved.undo.action : 'Leeren' };
+    }
+    updateUndoButton();
+    setDraftStatus('Entwurf geladen');
+    const stale = refreshResultState();
+    setStatus(conversionSizeError || (stale ? 'Bitte erneut umwandeln.' : ''), conversionSizeError || stale ? 'warn' : '');
+  } catch {
+    setDraftStatus('Entwurf nicht geladen');
+  }
+}
+
+function setStatus(message, type = '') {
+  for (const id of ['status', 'focusStatus']) {
+    const status = document.getElementById(id);
+    setNodeValue(status, 'textContent', message);
+    setNodeValue(status, 'className', type);
+    setNodeValue(status, 'hidden', !message);
+  }
+}
+
+/* JSON is a separate tool: its raw text never enters the marker conversion path. */
+function jsonStringContentLength(text, available) {
+  // JSON escaping never shortens a string. Reject before allocating escaped text.
+  if (text.length > available) checkOutputSize(MAX_OUTPUT_LENGTH - available + text.length);
+  let length = 0;
+  for (let index = 0; index < text.length; index++) {
+    const code = text.charCodeAt(index);
+    if (code === 34 || code === 92 || code === 8 || code === 9 || code === 10 || code === 12 || code === 13) length += 2;
+    else if (code < 32) length += 6;
+    else if (code >= 0xD800 && code <= 0xDBFF) {
+      const next = text.charCodeAt(index + 1);
+      if (next >= 0xDC00 && next <= 0xDFFF) { length += 2; index++; }
+      else length += 6;
+    } else if (code >= 0xDC00 && code <= 0xDFFF) length += 6;
+    else length++;
+    if (length > available) checkOutputSize(MAX_OUTPUT_LENGTH - available + length);
+  }
+  return length;
+}
+
+function normalizeJSONFormat(format, fallback = 'standard') {
+  return typeof format === 'string' && Object.hasOwn(JSON_FORMATS, format) ? format : fallback;
+}
+
+function trimJSONSectionLabel(label) {
+  let start = 0;
+  let end = label.length;
+  while (start < end && (label[start] === ' ' || label[start] === '\t')) start++;
+  while (end > start && (label[end - 1] === ' ' || label[end - 1] === '\t')) end--;
+  return label.slice(start, end);
+}
+
+function parseLyricsSections(raw, format) {
+  if (typeof raw !== 'string') throw new TypeError('Lyrics must be text.');
+  const sections = [];
+  let current = null;
+  let size = 2;
+  let standardLength = 2;
+  const addSection = type => {
+    const framing = format === 'standard' ? 42 : (format === 'compact' ? 23 : 7) + (sections.length ? 1 : 0);
+    const escapedLength = jsonStringContentLength(type, MAX_OUTPUT_LENGTH - size - framing);
+    size += framing + escapedLength;
+    standardLength += 42 + escapedLength;
+    current = { type, lyrics: [] };
+    sections.push(current);
+  };
+  // Scan incrementally so ignored blank lines do not create a huge split array.
+  for (const match of raw.matchAll(/([^\r\n\u2028\u2029]*)(?:\r\n|[\r\n\u2028\u2029]|$)/g)) {
+    const line = match[1];
+    const heading = line.match(/^[ \t]*\[([^\[\]]+)\][ \t]*$/u);
+    const type = heading ? trimJSONSectionLabel(heading[1]) : '';
+    if (type) { addSection(type); continue; }
+    if (/^[ \t]*$/.test(line)) continue;
+    if (!current) addSection('Lyrics');
+    const hasLines = current.lyrics.length > 0;
+    const standardFormatting = hasLines ? 10 : 14;
+    const formatting = format === 'standard' ? standardFormatting
+      : format === 'sectionText' ? (hasLines ? 2 : 0) : (hasLines ? 3 : 2);
+    const escapedLength = jsonStringContentLength(line, MAX_OUTPUT_LENGTH - size - formatting);
+    size += formatting + escapedLength;
+    standardLength += standardFormatting + escapedLength;
+    current.lyrics.push(line);
+  }
+  return { sections, standardLength };
+}
+
+function buildLyricsJSON(raw, format = 'standard') {
+  format = normalizeJSONFormat(format, 'standard');
+  const { sections, standardLength } = parseLyricsSections(raw, format);
+  const data = format === 'sections' ? sections.map(section => ({ [section.type]: section.lyrics }))
+    : format === 'pairs' ? sections.map(section => [section.type, section.lyrics])
+    : format === 'sectionText' ? sections.map(section => ({ [section.type]: section.lyrics.join('\n') })) : sections;
+  const output = format === 'standard' ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+  checkOutputSize(output.length);
+  return { output, standardLength: format === 'standard' ? output.length : standardLength };
+}
+
+function updateJSONFormatHint() {
+  const { example, note } = JSON_FORMATS[jsonFormat];
+  setNodeValue(document.getElementById('jsonFormat'), 'value', jsonFormat);
+  setNodeValue(document.getElementById('jsonFormatHint'), 'textContent', example);
+  setNodeValue(document.getElementById('jsonFormatNote'), 'textContent', note);
+}
+
+function setJSONFormat(format, options = {}) {
+  format = normalizeJSONFormat(format);
+  const wasCurrent = jsonConvertedInput !== null && !jsonResultIsStale();
+  const changed = format !== jsonFormat;
+  jsonFormat = format;
+  updateJSONFormatHint();
+  if (!changed) return;
+  resetCopyFeedback();
+  jsonSizeError = '';
+  if (wasCurrent && options.convert !== false) {
+    convertJSON({ save: options.save !== false });
+  } else {
+    const stale = updateJSONState();
+    setJSONStatus(stale ? 'Methode geändert. Bitte JSON erneut umwandeln.' : '', stale ? 'warn' : '');
+    if (options.save !== false) scheduleJSONDraftSave();
+  }
+}
+
+function setJSONStatus(message, type = '') {
+  const status = document.getElementById('jsonStatus');
+  setNodeValue(status, 'textContent', message);
+  setNodeValue(status, 'className', type);
+  setNodeValue(status, 'hidden', !message);
+}
+
+function setJSONDraftStatus(message) {
+  const status = document.getElementById('jsonDraftStatus');
+  setNodeValue(status, 'textContent', message);
+  setNodeValue(status, 'hidden', !message);
+}
+
+function jsonResultIsStale(input = document.getElementById('jsonInput').value) {
+  return Boolean(jsonSizeError) || (jsonConvertedInput !== null && (input !== jsonConvertedInput || jsonFormat !== jsonConvertedFormat));
+}
+
+function updateJSONState() {
+  const input = document.getElementById('jsonInput').value;
+  const outputLength = document.getElementById('jsonOutput').value.length;
+  const stale = jsonResultIsStale(input);
+  setNodeValue(document.getElementById('jsonInputCount'), 'textContent', input.length.toLocaleString('de-DE') + ' Zeichen');
+  setNodeValue(document.getElementById('jsonOutputCount'), 'textContent', outputLength.toLocaleString('de-DE') + ' Zeichen');
+  setNodeValue(document.getElementById('jsonStaleNotice'), 'hidden', !stale || !outputLength);
+  setNodeValue(document.getElementById('jsonCopyButton'), 'disabled', stale || !outputLength);
+  const savings = document.getElementById('jsonFormatSaving');
+  const hideSavings = stale || !outputLength || jsonConvertedStandardLength === null || outputLength >= jsonConvertedStandardLength;
+  setNodeValue(savings, 'hidden', hideSavings);
+  setNodeValue(savings, 'textContent', hideSavings ? '' : Math.round((1 - outputLength / jsonConvertedStandardLength) * 100) + ' % kürzer als Standard');
+  return stale;
+}
+
+function saveJSONDraft() {
+  if (clearingSiteData) return false;
+  jsonDraftDirty = true;
+  clearTimeout(jsonDraftSaveTimer);
+  jsonDraftSaveTimer = null;
+  try {
+    localStorage.setItem(JSON_DRAFT_KEY, JSON.stringify({
+      version: 1, input: document.getElementById('jsonInput').value, convertedInput: jsonConvertedInput,
+      format: jsonFormat, convertedFormat: jsonConvertedFormat
+    }));
+    jsonDraftDirty = false;
+    setJSONDraftStatus('Lokal gespeichert');
+    return true;
+  } catch {
+    setJSONDraftStatus('Speichern nicht verfügbar');
+    return false;
+  }
+}
+
+function scheduleJSONDraftSave() {
+  if (clearingSiteData) return;
+  jsonDraftDirty = true;
+  clearTimeout(jsonDraftSaveTimer);
+  jsonDraftSaveTimer = setTimeout(saveJSONDraft, 500);
+  setJSONDraftStatus('Speichert …');
+}
+
+function flushJSONDraft() {
+  if (jsonDraftDirty) saveJSONDraft();
+}
+
+function flushAllDrafts() {
+  flushDraft();
+  flushJSONDraft();
+  flushBuilderDraft();
+}
+
+function onJSONInputChanged() {
+  resetCopyFeedback();
+  jsonSizeError = '';
+  const stale = updateJSONState();
+  setJSONStatus(stale ? 'Bitte JSON erneut umwandeln.' : '', stale ? 'warn' : '');
+  scheduleJSONDraftSave();
+}
+
+function JSONSizeMessage() {
+  return 'JSON wäre zu groß. Maximal ' + MAX_OUTPUT_LENGTH.toLocaleString('de-DE') + ' Zeichen. Bitte den Text kürzen.';
+}
+
+function convertJSON(options = {}) {
+  resetCopyFeedback();
+  const raw = document.getElementById('jsonInput').value;
+  let result;
+  try {
+    result = buildLyricsJSON(raw, jsonFormat);
+  } catch (error) {
+    if (error.code !== 'OUTPUT_TOO_LARGE') throw error;
+    jsonSizeError = JSONSizeMessage();
+    updateJSONState();
+    setJSONStatus(jsonSizeError, 'warn');
+    if (options.save !== false) saveJSONDraft();
+    return false;
+  }
+  jsonSizeError = '';
+  jsonConvertedInput = raw;
+  jsonConvertedFormat = jsonFormat;
+  jsonConvertedStandardLength = result.standardLength;
+  setNodeValue(document.getElementById('jsonOutput'), 'value', result.output);
+  updateJSONState();
+  setJSONStatus('JSON umgewandelt.', 'good');
+  if (options.save !== false) saveJSONDraft();
+  return true;
+}
+
+async function copyJSON(options = {}) {
+  const output = document.getElementById('jsonOutput');
+  if (updateJSONState()) { setJSONStatus(jsonSizeError || 'Bitte JSON zuerst erneut umwandeln.', 'warn'); return; }
+  if (!output.value) { setJSONStatus('Bitte zuerst JSON umwandeln.', 'warn'); return; }
+  const value = output.value;
+  const snapshot = jsonConvertedInput;
+  const snapshotFormat = jsonConvertedFormat;
+  resetCopyFeedback();
+  const request = copyRequest;
+  const current = () => request === copyRequest && snapshot === jsonConvertedInput && snapshotFormat === jsonConvertedFormat && output.value === value && !jsonResultIsStale();
+  const buttonId = ['jsonConvertButton', 'jsonCopyButton', 'mobileConvertButton'].includes(options.buttonId)
+    ? options.buttonId : options.converted ? 'jsonConvertButton' : 'jsonCopyButton';
+  document.getElementById(COPY_LABELS[buttonId][0]).textContent = 'Kopiere …';
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(value);
+    copied = true;
+  } catch {
+    if (!current()) return;
+    output.focus();
+    output.select();
+    try { copied = document.execCommand('copy') === true; } catch { copied = false; }
+  }
+  if (!current()) return;
+  setJSONStatus(copied ? options.converted ? 'JSON umgewandelt & kopiert.' : 'JSON kopiert.' : 'Kopieren fehlgeschlagen. JSON mit Strg+C kopieren.', copied ? 'good' : 'warn');
+  showCopyFeedback(buttonId, copied ? 'Kopiert ✓' : 'Nicht kopiert', request);
+}
+
+async function convertJSONFromUI(buttonId = 'jsonConvertButton') {
+  if (convertJSON() === false) return;
+  const copying = copyJSON({ converted: true, buttonId });
+  if (window.matchMedia('(max-width: 700px)').matches) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('.json-output-editor').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+  await copying;
+}
+
+function clearJSON() {
+  resetCopyFeedback();
+  document.getElementById('jsonInput').value = '';
+  document.getElementById('jsonOutput').value = '';
+  jsonConvertedInput = null;
+  jsonConvertedFormat = null;
+  jsonConvertedStandardLength = null;
+  jsonSizeError = '';
+  updateJSONState();
+  setJSONStatus('Geleert.');
+  saveJSONDraft();
+  document.getElementById('jsonInput').focus();
+}
+
+function loadJSONDraft() {
+  updateJSONFormatHint();
+  try {
+    const raw = localStorage.getItem(JSON_DRAFT_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || saved.version !== 1 || typeof saved.input !== 'string') return;
+    document.getElementById('jsonInput').value = saved.input;
+    jsonFormat = normalizeJSONFormat(saved.format, 'standard');
+    updateJSONFormatHint();
+    jsonConvertedInput = typeof saved.convertedInput === 'string' ? saved.convertedInput : null;
+    jsonConvertedFormat = jsonConvertedInput === null ? null : normalizeJSONFormat(saved.convertedFormat, 'standard');
+    if (jsonConvertedInput !== null) {
+      try {
+        const result = buildLyricsJSON(jsonConvertedInput, jsonConvertedFormat);
+        document.getElementById('jsonOutput').value = result.output;
+        jsonConvertedStandardLength = result.standardLength;
+      }
+      catch (error) {
+        if (error.code !== 'OUTPUT_TOO_LARGE') throw error;
+        jsonSizeError = JSONSizeMessage();
+      }
+    }
+    setJSONDraftStatus('Entwurf geladen');
+    const stale = jsonResultIsStale();
+    setJSONStatus(jsonSizeError || (stale ? 'Bitte JSON erneut umwandeln.' : ''), stale ? 'warn' : '');
+  } catch { setJSONDraftStatus('Entwurf nicht geladen'); }
+}
+
+function copyButtonLabel(buttonId) {
+  if (buttonId === 'mobileConvertButton') {
+    if (activeTool === 'json') return 'JSON umwandeln & kopieren';
+    if (activeTool === 'builder') return 'Prompt kopieren';
+  }
+  return COPY_LABELS[buttonId][1];
+}
+
+function setActiveTool(tool, options = {}) {
+  tool = ['json', 'builder'].includes(tool) ? tool : 'spacer';
+  const changed = activeTool !== tool;
+  if (changed) {
+    flushAllDrafts();
+    if (document.getElementById('focusDialog').open) requestCloseEditor();
+    closeBuilderPreview();
+    resetCopyFeedback();
+    resetScrollSynchronization();
+  }
+  activeTool = tool;
+  const json = tool === 'json';
+  document.getElementById('spacerPanel').hidden = tool !== 'spacer';
+  document.getElementById('builderPanel').hidden = tool !== 'builder';
+  document.getElementById('jsonPanel').hidden = !json;
+  document.getElementById('markerHeaderTools').hidden = tool !== 'spacer';
+  document.getElementById('jsonHeaderTools').hidden = !json;
+  for (const [id, selected] of [['spacerTab', tool === 'spacer'], ['jsonTab', json], ['builderTab', tool === 'builder']]) {
+    document.getElementById(id).setAttribute('aria-selected', String(selected));
+    document.getElementById(id).setAttribute('tabindex', selected ? '0' : '-1');
+  }
+  document.getElementById('mobileConvertLabel').textContent = copyButtonLabel('mobileConvertButton');
+  if (options.focus) document.getElementById(tool === 'builder' ? 'builderTab' : json ? 'jsonTab' : 'spacerTab').focus();
+  if (changed && options.save !== false) {
+    try { localStorage.setItem(ACTIVE_TOOL_KEY, tool); } catch { /* Tool remains usable without saved preferences. */ }
+  }
+}
+
+function loadActiveTool() {
+  let saved = 'spacer';
+  try { saved = localStorage.getItem(ACTIVE_TOOL_KEY); } catch { /* Use the original tool. */ }
+  setActiveTool(saved, { save: false });
+}
+
+function convertActiveToolFromUI(buttonId = 'mobileConvertButton') {
+  return activeTool === 'builder' ? copyBuilder({ buttonId }) : activeTool === 'json' ? convertJSONFromUI(buttonId) : convertFromUI(buttonId);
+}
+
+/* Local song and voice prompt builder. */
+const BUILDER_DRAFT_KEY = 'suno-builder-draft-v1';
+const BUILDER_COMPAT_DRAFT_KEY = 'suno-builder-draft-v2';
+const BUILDER_MODES = ['rebuild', 'full', 'persona'];
+const BUILDER_MODE_NAMES = ['Rebuild', 'Full', 'Persona'];
+const BUILDER_SECTION_TYPES = ['intro', 'verse', 'prechorus', 'chorus', 'bridge', 'breakdown', 'solo', 'outro'];
+const BUILDER_SELECTS = {
+  instrument_quality: ['high', ['standard', 'high', 'premium']],
+  mixing: ['modern', ['basic', 'balanced', 'modern', 'live', 'acoustic', 'cinematic']],
+  mastering: ['studio', ['basic', 'balanced', 'studio', 'live', 'vinyl', 'radio']],
+  vocal_processing: ['none', ['none', 'light', 'moderate', 'enhanced']],
+  voice_type: ['natural_clean', ['natural_clean', 'warm', 'bright', 'powerful', 'soft']],
+  duet_style: ['alternating', ['alternating', 'harmony', 'alternating_and_harmony', 'call_and_response']],
+  duet_effects: ['none', ['none', 'light', 'moderate', 'heavy']],
+  verse_dynamics: ['controlled', ['controlled', 'quiet', 'building', 'energetic']],
+  prechorus_dynamics: ['build_with_tension', ['natural', 'build_with_tension', 'restrained', 'explosive']],
+  chorus_intensity: ['high', ['low', 'moderate', 'high', 'maximum']],
+  chorus_volume: ['increased', ['same', 'slightly_increased', 'increased', 'significantly_increased']],
+  chorus_transition: ['dramatic', ['smooth', 'natural', 'impactful', 'dramatic']],
+  chorus_layering: ['thicker', ['minimal', 'moderate', 'thick', 'thicker']],
+  chorus_stereo_width: ['wide', ['narrow', 'normal', 'wide', 'very_wide']],
+  drums_treatment: ['heavier_and_punchy', ['standard', 'punchy', 'heavier_and_punchy', 'explosive']],
+  bass_treatment: ['deeper', ['standard', 'fuller', 'deeper', 'distorted']],
+  synths_treatment: ['bright_and_layered', ['standard', 'bright', 'bright_and_layered', 'aggressive']],
+  brightness: ['balanced', ['dark', 'warm', 'balanced', 'bright', 'crisp']],
+  warmth: ['moderate', ['cool', 'neutral', 'moderate', 'warm', 'hot']],
+  space: ['wide', ['intimate', 'close', 'balanced', 'wide', 'expansive']],
+  reverb: ['natural', ['dry', 'minimal', 'natural', 'room', 'hall', 'large']],
+  compression: ['light', ['minimal', 'light', 'medium', 'heavy', 'pumping']],
+  distortion: ['none', ['none', 'subtle', 'warm', 'crunchy', 'gritty']]
+};
+const BUILDER_CHECKS = { preserve_structure: true, preserve_vocals: true, preserve_genre: false, enhance_instruments: true, preserve_character: true, duet_enabled: false, instrument_boost: true };
+const BUILDER_RANGES = { persona_weight: 0.8, persona_intensity: 0.9, persona_grain: 0.1, persona_clarity: 1, persona_tone_shift: 0, persona_vibrato: 0.2 };
+const BUILDER_TEXTS = { lyrics: '', song_style: '', song_mood: '', song_influences: '', song_tempo: '', song_key: '', song_description: '', persona_style_hint: 'female_dark_pop' };
+const BUILDER_FIELDS = [...Object.keys(BUILDER_SELECTS), ...Object.keys(BUILDER_CHECKS), ...Object.keys(BUILDER_RANGES), ...Object.keys(BUILDER_TEXTS)];
+const BUILDER_SELECT_HELP = {
+  instrument_quality: { standard: 'Einfachere Instrumentierung mit normaler Detailtiefe.', high: 'Sauber ausgearbeitete Instrumente mit mehr hörbaren Details.', premium: 'Besonders sorgfältige Instrumentierung und klare Trennung der Klänge.' },
+  mixing: { basic: 'Ein schlichter Mix ohne starke Klanggestaltung.', balanced: 'Stimme und Instrumente sollen gleichmäßig zusammenpassen.', modern: 'Ein klarer, druckvoller Mix mit präsenter Stimme.', live: 'Ein lebendiger Mix wie bei einem Auftritt.', acoustic: 'Natürliche Instrumente und eine offene, zurückhaltende Mischung.', cinematic: 'Große, räumliche Klänge wie in einem Filmsoundtrack.' },
+  mastering: { basic: 'Eine einfache abschließende Klangbearbeitung.', balanced: 'Ein ausgewogener Gesamtklang ohne starke Betonung.', studio: 'Ein sauberer, sorgfältig abgestimmter Gesamtklang.', live: 'Die Lebendigkeit eines Auftritts soll erhalten bleiben.', vinyl: 'Ein wärmerer, weicherer Gesamtklang.', radio: 'Ein präsenter, kompakter Gesamtklang mit gut hörbarer Stimme.' },
+  vocal_processing: { none: 'Die Stimme soll möglichst natürlich und wenig bearbeitet wirken.', light: 'Leichte Bearbeitung, ohne den natürlichen Gesang zu verdecken.', moderate: 'Deutlichere Bearbeitung für einen gleichmäßigeren Gesang.', enhanced: 'Stärker bearbeiteter, besonders präsenter Gesang.' },
+  voice_type: { natural_clean: 'Für ein aktiviertes Duett: natürliche, klare Stimme.', warm: 'Für ein aktiviertes Duett: weiche, warme Stimme.', bright: 'Für ein aktiviertes Duett: helle, deutliche Stimme.', powerful: 'Für ein aktiviertes Duett: kraftvolle, durchsetzungsfähige Stimme.', soft: 'Für ein aktiviertes Duett: sanfte, zurückhaltende Stimme.' },
+  duet_style: { alternating: 'Bei aktivem Duett wechseln sich die Stimmen ab.', harmony: 'Bei aktivem Duett singen die Stimmen als Harmonien zusammen.', alternating_and_harmony: 'Bei aktivem Duett wechseln sich Solozeilen und gemeinsame Harmonien ab.', call_and_response: 'Bei aktivem Duett antwortet eine Stimme auf die andere.' },
+  duet_effects: { none: 'Bei aktivem Duett sollen die Stimmen ohne zusätzliche Effekte bleiben.', light: 'Bei aktivem Duett nur wenige, dezente Gesangseffekte.', moderate: 'Bei aktivem Duett hörbare, aber zurückhaltende Gesangseffekte.', heavy: 'Bei aktivem Duett stark hörbare Gesangseffekte.' },
+  verse_dynamics: { controlled: 'Die Strophe bleibt ruhig geführt und lässt Platz für den Refrain.', quiet: 'Eine leise, zurückgenommene Strophe.', building: 'Die Strophe wird nach und nach energiereicher.', energetic: 'Schon die Strophe hat viel Energie und Bewegung.' },
+  prechorus_dynamics: { natural: 'Der Übergang zum Refrain soll sich natürlich entwickeln.', build_with_tension: 'Vor dem Refrain soll sich hörbar Spannung aufbauen.', restrained: 'Vor dem Refrain bleibt die Musik bewusst zurückhaltend.', explosive: 'Bereits vor dem Refrain gibt es einen starken Energieschub.' },
+  chorus_intensity: { low: 'Ein zurückhaltender Refrain mit wenig zusätzlicher Energie.', moderate: 'Ein deutlich hörbarer, aber ausgeglichener Refrain.', high: 'Ein kraftvoller Refrain mit viel Energie.', maximum: 'Ein besonders intensiver Refrain; kann Stimme und Mix stärker füllen.' },
+  chorus_volume: { same: 'Der Refrain bleibt ungefähr so laut wie die Strophe.', slightly_increased: 'Der Refrain wird nur etwas lauter.', increased: 'Der Refrain soll deutlich lauter wirken.', significantly_increased: 'Der Refrain soll einen besonders großen Lautstärkesprung machen.' },
+  chorus_transition: { smooth: 'Ein weicher Übergang ohne großen Sprung.', natural: 'Ein stimmiger, unaufdringlicher Übergang.', impactful: 'Der Refrain setzt mit einem deutlichen Akzent ein.', dramatic: 'Ein großer, spannungsvoller Wechsel in den Refrain.' },
+  chorus_layering: { minimal: 'Wenige Klangschichten lassen viel Platz für die Stimme.', moderate: 'Einige zusätzliche Schichten machen den Refrain voller.', thick: 'Viele Schichten ergeben einen dichten Refrain.', thicker: 'Ein besonders dichter Refrain; zusätzliche Klänge können die Stimme verdecken.' },
+  chorus_stereo_width: { narrow: 'Ein enger, eher mittiger Refrain.', normal: 'Eine natürliche Verteilung zwischen links und rechts.', wide: 'Ein breiter Refrain mit deutlich verteilten Instrumenten.', very_wide: 'Ein besonders breiter Refrain mit großem räumlichem Eindruck.' },
+  drums_treatment: { standard: 'Das Schlagzeug bleibt unauffällig und ausgewogen.', punchy: 'Das Schlagzeug bekommt kurze, klare Anschläge.', heavier_and_punchy: 'Kräftige, klare Anschläge mit mehr Gewicht.', explosive: 'Ein besonders starkes Schlagzeug mit großen Akzenten.' },
+  bass_treatment: { standard: 'Ein ausgewogener Bass ohne besondere Verstärkung.', fuller: 'Ein voller Bass, der den Song stärker trägt.', deeper: 'Mehr Betonung auf tiefe Bässe.', distorted: 'Ein hörbar verzerrter Bass mit rauem Klang.' },
+  synths_treatment: { standard: 'Synthesizer und Keys bleiben unauffällig.', bright: 'Hellere, deutlicher hervortretende Synthesizer und Keys.', bright_and_layered: 'Helle Synthesizer und Keys aus mehreren Klangschichten.', aggressive: 'Scharfe, kraftvolle Synthesizer und Keys.' },
+  brightness: { dark: 'Ein dunkler Gesamtklang mit weniger hellen Höhen.', warm: 'Ein weicher Gesamtklang mit zurückhaltenden Höhen.', balanced: 'Tiefe und helle Klänge sollen ausgewogen sein.', bright: 'Ein heller, offener Gesamtklang.', crisp: 'Besonders klare, scharf umrissene Höhen und Anschläge.' },
+  warmth: { cool: 'Ein kühler, eher sachlicher Klang.', neutral: 'Der Klang wird weder besonders warm noch kühl.', moderate: 'Etwas Wärme, ohne den Klang stark zu verändern.', warm: 'Ein weicher, deutlich wärmerer Klang.', hot: 'Ein besonders warmer, dichter Klang.' },
+  space: { intimate: 'Die Musik soll nah und persönlich wirken.', close: 'Stimme und Instrumente wirken nah am Hörer.', balanced: 'Ein natürlicher Raum ohne starke Weite.', wide: 'Ein weiter, offener Raumklang.', expansive: 'Ein sehr großer, weitläufiger Raumklang.' },
+  reverb: { dry: 'Möglichst kein hörbarer Hall; die Stimme bleibt sehr direkt.', minimal: 'Nur wenig Hall für etwas Raum.', natural: 'Ein unauffälliger, natürlicher Hall.', room: 'Ein hörbarer Hall wie in einem kleinen Raum.', hall: 'Ein größerer Hall wie in einer Halle.', large: 'Ein sehr großer Raum mit länger ausklingendem Hall.' },
+  compression: { minimal: 'Lautstärkeunterschiede bleiben weitgehend erhalten.', light: 'Leichte Lautstärkeangleichung mit viel natürlicher Bewegung.', medium: 'Deutlichere Lautstärkeangleichung für einen gleichmäßigeren Klang.', heavy: 'Starke Lautstärkeangleichung; kann natürliche Bewegung verringern.', pumping: 'Hörbares rhythmisches Anschwellen und Absenken der Lautstärke.' },
+  distortion: { none: 'Keine zusätzliche Verzerrung wünschen.', subtle: 'Nur wenig Verzerrung für eine leichte Rauheit.', warm: 'Weiche Verzerrung für einen wärmeren Klang.', crunchy: 'Deutlich raue, bissige Verzerrung.', gritty: 'Starke, körnige Verzerrung mit hörbaren Kanten.' }
+};
+let builderMode = 'rebuild';
+let builderSections = [];
+let builderNextSectionId = 0;
+let builderRevision = 0;
+let builderOutputRevision = -1;
+let builderOutputJSON = '';
+let builderOutputError = '';
+let builderGenerateTimer = null;
+let builderDraftTimer = null;
+let builderDraftDirty = false;
+
+function normalizeBuilderSettings(value = {}) {
+  if (!value || typeof value !== 'object') value = {};
+  const supplied = value.values && typeof value.values === 'object' ? value.values : {};
+  const values = {};
+  for (const [key, [initial, options]] of Object.entries(BUILDER_SELECTS)) values[key] = options.includes(supplied[key]) ? supplied[key] : initial;
+  for (const [key, initial] of Object.entries(BUILDER_CHECKS)) values[key] = typeof supplied[key] === 'boolean' ? supplied[key] : initial;
+  for (const [key, initial] of Object.entries(BUILDER_RANGES)) {
+    const number = typeof supplied[key] === 'number' || typeof supplied[key] === 'string' && supplied[key].trim() !== '' ? Number(supplied[key]) : NaN;
+    values[key] = Number.isFinite(number) ? Math.round(Math.max(key === 'persona_tone_shift' ? -1 : 0, Math.min(1, number)) * 10) / 10 : initial;
+  }
+  for (const [key, initial] of Object.entries(BUILDER_TEXTS)) values[key] = typeof supplied[key] === 'string' ? supplied[key] : initial;
+  const sourceSections = Array.isArray(value.sections) ? value.sections : [{}];
+  const sections = sourceSections.filter(section => section && typeof section === 'object' && !Array.isArray(section)).map((section, index) => ({
+    id: index,
+    type: BUILDER_SECTION_TYPES.includes(section.type) ? section.type : 'intro',
+    lyrics: typeof section.lyrics === 'string' ? section.lyrics : '',
+    vocalStyle: typeof section.vocalStyle === 'string' ? section.vocalStyle : '',
+    instruments: typeof section.instruments === 'string' ? section.instruments : '',
+    effects: typeof section.effects === 'string' ? section.effects : ''
+  }));
+  return { mode: BUILDER_MODES.includes(value.mode) ? value.mode : 'rebuild', values, sections };
+}
+
+function getBuilderSettings() {
+  const values = {};
+  for (const key of BUILDER_FIELDS) {
+    const field = document.getElementById('builder_' + key);
+    values[key] = Object.hasOwn(BUILDER_CHECKS, key) ? field.checked : field.value;
+  }
+  const settings = normalizeBuilderSettings({ mode: builderMode, values, sections: builderSections });
+  settings.sections.forEach((section, index) => { section.id = builderSections[index].id; });
+  return settings;
+}
+
+function builderCommaList(text) {
+  const items = [];
+  let start = 0;
+  while (start <= text.length) {
+    const comma = text.indexOf(',', start);
+    items.push(text.slice(start, comma < 0 ? text.length : comma).trim());
+    // Every element costs at least four characters in a pretty JSON array.
+    checkOutputSize(items.length * 4);
+    if (comma < 0) break;
+    start = comma + 1;
+  }
+  return items;
+}
+
+function builderJSONLength(value, reserve = 0) {
+  let size = reserve;
+  checkOutputSize(size);
+  const add = amount => { size += amount; checkOutputSize(size); };
+  const string = text => { add(2); add(jsonStringContentLength(text, MAX_OUTPUT_LENGTH - size)); };
+  function visit(item, depth) {
+    if (typeof item === 'string') { string(item); return; }
+    if (typeof item === 'number' || typeof item === 'boolean' || item === null) { add(String(item).length); return; }
+    const array = Array.isArray(item);
+    const entries = array ? item : Object.entries(item);
+    add(2);
+    if (!entries.length) return;
+    add(1);
+    for (let index = 0; index < entries.length; index++) {
+      add((depth + 1) * 2);
+      if (array) visit(entries[index], depth + 1);
+      else { string(entries[index][0]); add(2); visit(entries[index][1], depth + 1); }
+      add(index < entries.length - 1 ? 2 : 1);
+    }
+    add(depth * 2);
+  }
+  visit(value, 0);
+  return size;
+}
+
+function createBuilderPrompt({ mode, values: v, sections }) {
+  let object;
+  if (mode === 'rebuild') {
+    object = { action: 'rebuild', preserve_structure: v.preserve_structure, preserve_vocals: v.preserve_vocals, enhance_instruments: v.enhance_instruments, instrument_quality: v.instrument_quality, mixing: v.mixing, mastering: v.mastering };
+    if (v.preserve_genre) object.preserve_genre = true;
+    object.vocal_handling = { processing: v.vocal_processing };
+    if (v.preserve_character) object.vocal_handling.preserve_character = true;
+    object.vocal_handling.duet = v.duet_enabled ? { enabled: true, voice_type: v.voice_type, style: v.duet_style, effects: v.duet_effects } : { enabled: false };
+    object.dynamics = { verse: v.verse_dynamics, prechorus: v.prechorus_dynamics, chorus: { intensity: v.chorus_intensity, volume: v.chorus_volume, transition: v.chorus_transition, layering: v.chorus_layering, stereo_width: v.chorus_stereo_width } };
+    object.chorus_treatment = { instrument_boost: v.instrument_boost, drums: v.drums_treatment, bass: v.bass_treatment, synths: v.synths_treatment };
+    object.tone = { brightness: v.brightness, warmth: v.warmth, space: v.space };
+    object.effects = { reverb: v.reverb, compression: v.compression, distortion: v.distortion };
+  } else if (mode === 'full') {
+    object = { style: v.song_style || 'unspecified', mood: v.song_mood || 'unspecified', tempo: v.song_tempo || 'moderate', key: v.song_key || 'C Major', structure: [] };
+    if (v.song_influences) object.influences = builderCommaList(v.song_influences);
+    for (const section of sections) {
+      const item = { section: section.type, lyrics: section.lyrics || '[instrumental]' };
+      if (section.vocalStyle) item.vocal_style = section.vocalStyle;
+      if (section.instruments) item.instruments = builderCommaList(section.instruments);
+      if (section.effects) item.effects = builderCommaList(section.effects);
+      object.structure.push(item);
+    }
+    if (v.song_description) object.description = v.song_description;
+  } else if (mode === 'persona') {
+    object = { persona: { weight: v.persona_weight, intensity: v.persona_intensity, grain: v.persona_grain, clarity: v.persona_clarity, tone_shift: v.persona_tone_shift, vibrato: v.persona_vibrato, style_hint: v.persona_style_hint } };
+  }
+  const suffix = mode === 'rebuild' ? v.lyrics : '';
+  builderJSONLength(object, suffix ? suffix.length + 2 : 0);
+  const json = JSON.stringify(object, null, 2);
+  const text = suffix ? json + '\n\n' + suffix : json;
+  checkOutputSize(text.length);
+  return { text, json };
+}
+
+function setBuilderStatus(message, type = '') {
+  const status = document.getElementById('builderStatus');
+  setNodeValue(status, 'textContent', message);
+  setNodeValue(status, 'className', 'builder-status ' + type);
+  setNodeValue(status, 'hidden', !message);
+}
+
+function setBuilderDraftStatus(message) {
+  const status = document.getElementById('builderDraftStatus');
+  setNodeValue(status, 'textContent', message);
+  setNodeValue(status, 'hidden', false);
+}
+
+function updateBuilderOutputActions(disabled) {
+  for (const id of ['builderCopyButton', 'builderPreviewButton']) {
+    setNodeValue(document.getElementById(id), 'disabled', disabled);
+  }
+}
+
+function generateBuilderOutput() {
+  clearTimeout(builderGenerateTimer);
+  builderGenerateTimer = null;
+  if (builderOutputRevision === builderRevision) {
+    setBuilderStatus(builderOutputError, builderOutputError ? 'warn' : '');
+    return !builderOutputError;
+  }
+  let text = '';
+  let json = '';
+  let errorMessage = '';
+  try {
+    ({ text, json } = createBuilderPrompt(getBuilderSettings()));
+  } catch (error) {
+    if (error.code !== 'OUTPUT_TOO_LARGE') throw error;
+    errorMessage = 'Prompt wäre zu groß. Maximal ' + MAX_OUTPUT_LENGTH.toLocaleString('de-DE') + ' Zeichen. Bitte den Text kürzen.';
+  }
+  const countText = errorMessage ? 'Zu groß' : text.length.toLocaleString('de-DE') + ' Zeichen';
+  setNodeValue(document.getElementById('builderOutput'), 'value', text);
+  setNodeValue(document.getElementById('builderOutputCount'), 'textContent', countText);
+  updateBuilderOutputActions(Boolean(errorMessage));
+  if (errorMessage || document.getElementById('builderPreviewDialog').open) {
+    setNodeValue(document.getElementById('builderPreviewJSON'), 'textContent', json);
+  }
+  builderOutputError = errorMessage;
+  builderOutputJSON = json;
+  builderOutputRevision = builderRevision;
+  setBuilderStatus(errorMessage, errorMessage ? 'warn' : '');
+  return !errorMessage;
+}
+
+function updateBuilderControl(key) {
+  if (Object.hasOwn(BUILDER_RANGES, key)) {
+    const label = document.getElementById('builder_' + key + '_value');
+    const value = Number(document.getElementById('builder_' + key).value).toFixed(1);
+    setNodeValue(label, 'textContent', value);
+  } else if (Object.hasOwn(BUILDER_SELECT_HELP, key)) {
+    const help = document.getElementById('builder_help_' + key);
+    const meaning = BUILDER_SELECT_HELP[key][document.getElementById('builder_' + key).value] || '';
+    setNodeValue(help, 'textContent', meaning);
+  }
+}
+
+function builderChanged(options = {}) {
+  if (clearingSiteData) return;
+  builderRevision++;
+  resetCopyFeedback();
+  if (options.key) updateBuilderControl(options.key);
+  clearTimeout(builderGenerateTimer);
+  if (options.defer) {
+    // Both actions complete the pending update before using the result.
+    updateBuilderOutputActions(false);
+    setBuilderStatus('Prompt wird aktualisiert …');
+    builderGenerateTimer = setTimeout(generateBuilderOutput, 120);
+  } else generateBuilderOutput();
+  builderDraftDirty = true;
+  clearTimeout(builderDraftTimer);
+  builderDraftTimer = setTimeout(saveBuilderDraft, 500);
+  setBuilderDraftStatus('Speichert …');
+}
+
+function setBuilderMode(mode, options = {}) {
+  builderMode = BUILDER_MODES.includes(mode) ? mode : 'rebuild';
+  for (const [index, name] of BUILDER_MODE_NAMES.entries()) {
+    const selected = builderMode === BUILDER_MODES[index];
+    const tab = document.getElementById('builder' + name + 'Tab');
+    if (tab.getAttribute('aria-selected') !== String(selected)) tab.setAttribute('aria-selected', String(selected));
+    setNodeValue(tab, 'tabIndex', selected ? 0 : -1);
+    setNodeValue(document.getElementById('builder' + name + 'Panel'), 'hidden', !selected);
+    if (selected && options.focus) tab.focus();
+  }
+  setNodeValue(document.getElementById('builderOutputTitle'), 'textContent', builderMode === 'rebuild' ? 'Suno-Prompt' : 'JSON-Ausgabe');
+  if (options.save === false) { builderRevision++; generateBuilderOutput(); }
+  else builderChanged();
+}
+
+function renderBuilderSections() {
+  const labels = { intro: 'Intro', verse: 'Verse', prechorus: 'Pre-Chorus', chorus: 'Chorus', bridge: 'Bridge', breakdown: 'Breakdown', solo: 'Solo', outro: 'Outro' };
+  document.getElementById('builderSections').innerHTML = builderSections.map((section, index) => {
+    const field = (key, label, placeholder, multiline = false) => {
+      const id = 'builder-section-' + section.id + '-' + key;
+      const attrs = ' id="' + id + '" data-builder-section="' + section.id + '" data-builder-field="' + key + '"';
+      return '<div class="builder-field"><label for="' + id + '">' + label + '</label>' + (multiline ? '<textarea' + attrs + ' rows="3" spellcheck="false" placeholder="' + placeholder + '"></textarea>' : '<input type="text"' + attrs + ' placeholder="' + placeholder + '">') + '</div>';
+    };
+    return '<article class="builder-section"><div class="builder-section-head"><h3>Abschnitt ' + (index + 1) + '</h3><button type="button" data-builder-remove="' + section.id + '" aria-label="Abschnitt ' + (index + 1) + ' entfernen">Entfernen</button></div><div class="builder-fields"><div class="builder-field"><label for="builder-section-' + section.id + '-type">Abschnittstyp</label><select id="builder-section-' + section.id + '-type" data-builder-section="' + section.id + '" data-builder-field="type">' + BUILDER_SECTION_TYPES.map(type => '<option value="' + type + '"' + (type === section.type ? ' selected' : '') + '>' + labels[type] + '</option>').join('') + '</select></div>' + field('vocalStyle', 'Gesangsstil', 'Kraftvoll, sanft, rau …') + '</div>' + field('lyrics', 'Lyrics', 'Lyrics für diesen Abschnitt …', true) + '<div class="builder-fields">' + field('instruments', 'Instrumente · mit Komma trennen', 'Guitar, bass, drums') + field('effects', 'Effekte · mit Komma trennen', 'Reverb, delay') + '</div></article>';
+  }).join('');
+  // Assign text as values, so HTML parsing cannot replace control characters.
+  for (const section of builderSections) {
+    for (const key of ['lyrics', 'vocalStyle', 'instruments', 'effects']) {
+      document.getElementById('builder-section-' + section.id + '-' + key).value = section[key];
+    }
+  }
+}
+
+function addBuilderSection() {
+  const id = builderNextSectionId++;
+  builderSections.push({ id, type: 'intro', lyrics: '', vocalStyle: '', instruments: '', effects: '' });
+  renderBuilderSections();
+  builderChanged();
+  return id;
+}
+
+function removeBuilderSection(id) {
+  const next = builderSections.filter(section => section.id !== Number(id));
+  if (next.length === builderSections.length) return false;
+  builderSections = next;
+  renderBuilderSections();
+  builderChanged();
+  document.getElementById('builderAddSectionButton').focus();
+  return true;
+}
+
+function setBuilderSection(id, field, value, options = {}) {
+  const section = builderSections.find(section => section.id === Number(id));
+  if (!section || !['type', 'lyrics', 'vocalStyle', 'instruments', 'effects'].includes(field) || typeof value !== 'string') return false;
+  if (field === 'type' && !BUILDER_SECTION_TYPES.includes(value)) return false;
+  section[field] = value;
+  builderChanged(options);
+  return true;
+}
+
+function applyBuilderSettings(settings) {
+  const normalized = normalizeBuilderSettings(settings);
+  for (const key of BUILDER_FIELDS) {
+    const field = document.getElementById('builder_' + key);
+    if (Object.hasOwn(BUILDER_CHECKS, key)) setNodeValue(field, 'checked', normalized.values[key]);
+    else setNodeValue(field, 'value', String(normalized.values[key]));
+    updateBuilderControl(key);
+  }
+  builderSections = normalized.sections;
+  builderNextSectionId = builderSections.length;
+  renderBuilderSections();
+  setBuilderMode(normalized.mode, { save: false });
+}
+
+function saveBuilderDraft() {
+  if (clearingSiteData) return false;
+  builderDraftDirty = true;
+  clearTimeout(builderDraftTimer);
+  builderDraftTimer = null;
+  try {
+    localStorage.setItem(BUILDER_DRAFT_KEY, JSON.stringify({ version: 1, settings: getBuilderSettings() }));
+    builderDraftDirty = false;
+    setBuilderDraftStatus('Lokal gespeichert');
+    return true;
+  } catch { setBuilderDraftStatus('Speichern nicht verfügbar'); return false; }
+}
+
+function flushBuilderDraft() { if (builderDraftDirty) saveBuilderDraft(); }
+
+function loadBuilderDraft() {
+  let settings = null;
+  let invalidDraft = false;
+  for (const [key, version] of [[BUILDER_DRAFT_KEY, 1], [BUILDER_COMPAT_DRAFT_KEY, 2]]) {
+    let saved;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw === null) continue;
+      saved = JSON.parse(raw);
+    } catch {
+      invalidDraft = true;
+      continue;
+    }
+    if (saved?.version !== version || !saved.settings || typeof saved.settings !== 'object' || Array.isArray(saved.settings)) {
+      invalidDraft = true;
+      continue;
+    }
+    settings = saved.settings;
+    if (version === 2) {
+      // Prefer the original textarea input over its parsed representation.
+      const input = typeof saved.pendingRaw === 'string' ? saved.pendingRaw : saved.importInput;
+      if (typeof input === 'string') settings = { ...settings, values: { ...settings.values, lyrics: input } };
+    }
+    break;
+  }
+  applyBuilderSettings(settings ?? {});
+  if (settings) setBuilderDraftStatus('Entwurf geladen');
+  else if (invalidDraft) setBuilderDraftStatus('Entwurf nicht geladen');
+}
+
+function resetBuilder() {
+  closeBuilderPreview();
+  resetCopyFeedback();
+  applyBuilderSettings({});
+  saveBuilderDraft();
+  setBuilderStatus('Builder zurückgesetzt.');
+}
+
+async function copyBuilder(options = {}) {
+  if (!generateBuilderOutput()) return;
+  const output = document.getElementById('builderOutput');
+  const value = output.value;
+  const revision = builderRevision;
+  resetCopyFeedback();
+  const request = copyRequest;
+  const current = () => request === copyRequest && revision === builderRevision && output.value === value && !builderOutputError;
+  const buttonId = options.buttonId === 'mobileConvertButton' ? options.buttonId : 'builderCopyButton';
+  document.getElementById(COPY_LABELS[buttonId][0]).textContent = 'Kopiere …';
+  let copied = false;
+  try { await navigator.clipboard.writeText(value); copied = true; }
+  catch {
+    if (!current()) return;
+    output.focus(); output.select();
+    try { copied = document.execCommand('copy') === true; } catch { copied = false; }
+  }
+  if (!current()) return;
+  setBuilderStatus(copied ? 'Prompt kopiert.' : 'Kopieren fehlgeschlagen. Prompt mit Strg+C kopieren.', copied ? 'good' : 'warn');
+  showCopyFeedback(buttonId, copied ? 'Kopiert ✓' : 'Nicht kopiert', request);
+}
+
+function showBuilderPreview() {
+  if (!generateBuilderOutput()) return;
+  setNodeValue(document.getElementById('builderPreviewJSON'), 'textContent', builderOutputJSON);
+  document.getElementById('builderPreviewDialog').showModal();
+}
+
+function closeBuilderPreview() { if (document.getElementById('builderPreviewDialog').open) document.getElementById('builderPreviewDialog').close(); }
+
+function initializeBuilder() {
+  for (const key of BUILDER_FIELDS) {
+    const field = document.getElementById('builder_' + key);
+    const event = Object.hasOwn(BUILDER_SELECTS, key) || Object.hasOwn(BUILDER_CHECKS, key) ? 'change' : 'input';
+    const defer = event === 'input';
+    field.addEventListener(event, () => builderChanged({ key, defer }));
+    field.addEventListener('blur', flushBuilderDraft);
+  }
+  for (const [index, name] of BUILDER_MODE_NAMES.entries()) {
+    const tab = document.getElementById('builder' + name + 'Tab');
+    tab.addEventListener('click', () => setBuilderMode(BUILDER_MODES[index]));
+    tab.addEventListener('keydown', event => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const count = BUILDER_MODES.length;
+      const next = event.key === 'ArrowRight' ? (index + 1) % count : event.key === 'ArrowLeft' ? (index + count - 1) % count : event.key === 'Home' ? 0 : event.key === 'End' ? count - 1 : -1;
+      if (next < 0) return;
+      event.preventDefault();
+      setBuilderMode(BUILDER_MODES[next], { focus: true });
+    });
+  }
+  const container = document.getElementById('builderSections');
+  container.addEventListener('input', event => {
+    const { builderSection, builderField } = event.target.dataset;
+    if (builderSection !== undefined && builderField !== 'type') setBuilderSection(builderSection, builderField, event.target.value, { defer: true });
+  });
+  container.addEventListener('change', event => {
+    const { builderSection, builderField } = event.target.dataset;
+    if (builderSection !== undefined && builderField === 'type') setBuilderSection(builderSection, builderField, event.target.value);
+  });
+  container.addEventListener('focusout', flushBuilderDraft);
+  container.addEventListener('click', event => {
+    const button = event.target.closest('[data-builder-remove]');
+    if (button) removeBuilderSection(button.dataset.builderRemove);
+  });
+  document.getElementById('builderAddSectionButton').addEventListener('click', addBuilderSection);
+  document.getElementById('builderCopyButton').addEventListener('click', () => copyBuilder());
+  document.getElementById('builderPreviewButton').addEventListener('click', showBuilderPreview);
+  document.getElementById('builderClosePreviewButton').addEventListener('click', closeBuilderPreview);
+  document.getElementById('builderPreviewDialog').addEventListener('click', event => { if (event.target === event.currentTarget) closeBuilderPreview(); });
+  document.getElementById('builderResetButton').addEventListener('click', resetBuilder);
+  loadBuilderDraft();
+}
+
+
+function updateResultFreshness(stale, allWords = invisibleType === 'reference' || document.getElementById('mode').value === 'all') {
+  const analysis = document.getElementById('analysisContent');
+  if (stale && !analysis.inert) resetScrollSynchronization();
+  setNodeValue(analysis, 'inert', stale);
+  const hasOutput = Boolean(document.getElementById('output').value);
+  setNodeValue(document.getElementById('staleNotice'), 'hidden', !stale);
+  setNodeValue(document.getElementById('copyButton'), 'disabled', stale || !hasOutput);
+  document.getElementById('resultDetails').classList.toggle('is-stale', stale);
+  setNodeValue(document.getElementById('analysisStaleBadge'), 'hidden', !stale);
+  const showInvisible = document.getElementById('showInvisible');
+  setNodeValue(showInvisible, 'disabled', stale);
+  setNodeValue(document.getElementById('markerLegend'), 'hidden', stale || !lastPlan?.addedCount || !showInvisible.checked);
+  setNodeValue(document.getElementById('protectWordButton'), 'disabled', stale || allWords);
+  if (stale) setNodeValue(document.getElementById('wordInspector'), 'hidden', true);
+  const budgetNote = document.getElementById('budgetNote');
+  setNodeValue(budgetNote, 'hidden', stale || !lastPlan || !budgetNote.textContent);
+  const characterNote = document.getElementById('characterResultNote');
+  const converted = lastConvertedSettings;
+  setNodeValue(characterNote, 'hidden', !converted || !hasOutput);
+  setNodeValue(characterNote, 'textContent', converted && hasOutput
+    ? 'Ergebnis: ' + CHARACTER_OPTIONS[normalizeCharacterType(converted.characterType)].label + ' · ' + converted.width + (converted.characterType === 'reference' ? '× pro Buchstabe' : '× pro Lücke') + (stale ? ' · veraltet' : '')
+    : '');
+}
+
+function updateInputCount() {
+  const count = document.getElementById('inputCount');
+  setNodeValue(count, 'textContent', document.getElementById('input').value.length.toLocaleString('de-DE') + ' Zeichen');
+}
+
+function updateResultState(stale) {
+  const mode = document.getElementById('mode');
+  const reference = invisibleType === 'reference';
+  const allWords = reference || mode.value === 'all';
+  setNodeValue(mode, 'disabled', reference);
+  setNodeValue(document.getElementById('randomizeWords'), 'disabled', reference);
+  setNodeValue(document.getElementById('wordOptions'), 'hidden', reference);
+  setNodeValue(document.getElementById('referenceRule'), 'hidden', !reference);
+  setNodeValue(document.getElementById('protectionOptions'), 'hidden', allWords);
+  setNodeValue(document.getElementById('budgetOptions'), 'hidden', allWords);
+  for (const id of ['customWords', 'budgetEnabled', 'characterLimit']) setNodeValue(document.getElementById(id), 'disabled', allWords);
+  updateInputCount();
+  const outputLength = document.getElementById('output').value.length;
+  setNodeValue(document.getElementById('outputCount'), 'textContent', outputLength.toLocaleString('de-DE') + ' Zeichen');
+  setNodeValue(document.getElementById('clearProtectionButton'), 'disabled', allWords || !document.getElementById('customWords').value);
+  updateResultFreshness(stale, allWords);
+  for (const [id, count] of [
+    ['modifiedLegend', lastPlan?.modifiedCount], ['protectedLegend', lastPlan?.protectedCount],
+    ['tagLegend', lastPlan?.tagCount], ['randomLegend', lastPlan?.randomSkippedCount],
+    ['unchangedLegend', lastPlan?.unchangedCount]
+  ]) setNodeValue(document.getElementById(id), 'hidden', !count);
+  setNodeValue(document.getElementById('markerToggleControl'), 'hidden', !lastPlan?.addedCount);
+  for (const [character, marker] of Object.entries(MARKER_OPTIONS)) {
+    setNodeValue(document.getElementById(marker.legend), 'hidden', !lastPlan?.markerCounts[character]);
+  }
+  updateWidthControls();
+  updateCharacterControls();
+  setNodeValue(document.getElementById('characterNote'), 'textContent', reference
+    ? 'U+200B und U+FEFF nach jedem Buchstaben.'
+    : invisibleType === 'mix' ? 'U+200B und U+FEFF abwechselnd im Wort.' : 'Zeichen nur zwischen Buchstaben.');
+}
+
+function refreshResultState() {
+  const stale = resultIsStale();
+  updateResultState(stale);
+  const input = document.getElementById('input');
+  const unclosedLine = getUnclosedBracketLine(input.value);
+  const warning = document.getElementById('bracketWarning');
+  setNodeValue(warning, 'hidden', unclosedLine === null);
+  const message = unclosedLine === null ? '' : 'Offene Klammer in Zeile ' + unclosedLine + '.';
+  if (warning.textContent !== message) warning.textContent = message;
+  return stale;
+}
+
+function onSettingsChanged(id) {
+  resetCopyFeedback();
+  conversionSizeError = '';
+  if (id === 'input') {
+    const hadUndo = Boolean(undoClearState);
+    undoClearState = null;
+    customEditInProgress = false;
+    customWordsCheckpoint = document.getElementById('customWords').value;
+    if (hadUndo) updateUndoButton();
+    updateInputCount();
+  } else if (id === 'customWords' && !customEditInProgress) {
+    rememberUndo('Schutzliste ändern', customWordsCheckpoint);
+    customEditInProgress = true;
+  }
+  // Während des Tippens sofort sperren; längere Prüfungen erst nach der Pause.
+  const stale = lastConvertedSettings !== null;
+  if (id === 'input' || id === 'customWords' || id === 'characterLimit') {
+    if (document.getElementById('analysisContent').inert !== stale) updateResultFreshness(stale);
+    if (id === 'customWords') {
+      const customWords = document.getElementById('customWords');
+      setNodeValue(document.getElementById('clearProtectionButton'), 'disabled', customWords.disabled || !customWords.value);
+    }
+  } else updateResultState(stale);
+  setStatus(stale ? 'Bitte erneut umwandeln.' : '', stale ? 'warn' : '');
+  cancelSettingsCheck();
+  settingsCheckTimer = setTimeout(() => {
+    settingsCheckTimer = null;
+    const currentStale = refreshResultState();
+    setStatus(currentStale ? 'Bitte erneut umwandeln.' : '', currentStale ? 'warn' : '');
+  }, 160);
+  scheduleDraftSave();
+}
+
+function escapeHTML(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function visibleMarkerHTML(text) {
+  return escapeHTML(text).replace(INVISIBLE_REGEX, character => {
+    const marker = MARKER_OPTIONS[character];
+    return '<span class="marker ' + marker.className + '" title="' + marker.label + '">' + marker.symbol + '</span>';
+  });
+}
+
+function previewTextHTML(text, showMarkers, budget) {
+  const length = Math.min(text.length, MAX_WORD_PREVIEW_CHARACTERS, budget.remaining);
+  const excerpt = text.slice(0, length).replace(/[\uD800-\uDBFF]$/, '');
+  budget.remaining -= excerpt.length;
+  const html = showMarkers ? visibleMarkerHTML(excerpt) : escapeHTML(excerpt);
+  return html + (excerpt.length < text.length ? '<span class="preview-clipped" title="Vorschau gekürzt · Kopie vollständig.">…</span>' : '');
+}
+
+function previewSpan(text, className, reason, index, focusIndex, showMarkers, budget) {
+  const selected = selectedTokenIndex === index;
+  const description = escapeHTML(reason);
+  return '<span class="' + className + (selected ? ' is-selected' : '') + '" role="button" tabindex="' + (index === focusIndex ? '0' : '-1') + '" data-token-index="' + index + '" data-reason="' + description + '" title="' + description + '">' + previewTextHTML(text, showMarkers, budget) + '</span>';
+}
+
+function previewChunk(start, end, focusIndex = selectedTokenIndex ?? lastPlan.tokens.findIndex(token => token.kind !== 'plain')) {
+  const showInvisible = document.getElementById('showInvisible').checked;
+  const budget = { remaining: MAX_PREVIEW_CHARACTERS };
+  const markup = [];
+  for (let index = start; index < end; index++) {
+    const token = lastPlan.tokens[index];
+    if (token.kind === 'plain') {
+      markup.push(previewTextHTML(token.text, false, budget));
+      continue;
+    }
+    const showMarkers = showInvisible && token.kind === 'modified';
+    const text = showMarkers ? token.text : token.original;
+    markup.push(previewSpan(text, token.kind, token.reason, index, focusIndex, showMarkers, budget));
+  }
+  return markup.join('');
+}
+
+function renderAnalysis() {
+  if (!lastPlan || !document.getElementById('analysisPanel').open || !analysisDirty) return;
+  analysisVisibleTokenCount = Math.min(lastPlan.tokens.length, Math.max(analysisVisibleTokenCount, (selectedTokenIndex ?? -1) + 1));
+  const preview = document.getElementById('preview');
+  const restoreFocus = preview.contains(document.activeElement);
+  const focusIndex = selectedTokenIndex ?? lastPlan.tokens.findIndex(token => token.kind !== 'plain');
+  const chunks = [];
+  for (let start = 0; start < analysisVisibleTokenCount; start += PREVIEW_BATCH_SIZE) {
+    chunks.push(previewChunk(start, Math.min(start + PREVIEW_BATCH_SIZE, analysisVisibleTokenCount), focusIndex));
+  }
+  preview.innerHTML = chunks.join('');
+  selectedTokenElement = preview.querySelector('.is-selected');
+  document.getElementById('previewMoreButton').hidden = analysisVisibleTokenCount >= lastPlan.tokens.length;
+  analysisDirty = false;
+  if (restoreFocus) preview.querySelector('[tabindex="0"]')?.focus({ preventScroll: true });
+}
+
+function showMoreAnalysis() {
+  if (!lastPlan || !document.getElementById('analysisPanel').open || document.getElementById('analysisContent').inert) return;
+  renderAnalysis();
+  const end = Math.min(lastPlan.tokens.length, analysisVisibleTokenCount + PREVIEW_BATCH_SIZE);
+  if (end === analysisVisibleTokenCount) return;
+  document.getElementById('preview').insertAdjacentHTML('beforeend', previewChunk(analysisVisibleTokenCount, end));
+  analysisVisibleTokenCount = end;
+  document.getElementById('previewMoreButton').hidden = end >= lastPlan.tokens.length;
+}
+
+function updateStats(plan) {
+  const { result } = plan;
+  const remaining = plan.limit - result.length;
+  const type = remaining < 0 ? 'bad' : result.length > plan.limit * .86 ? 'warn' : 'good';
+  const format = value => value.toLocaleString('de-DE');
+  const note = remaining < 0 ? format(-remaining) + ' Zeichen zu viel' : 'Noch ' + format(remaining) + ' Zeichen';
+  const stat = (label, value, className = '', extra = '') => '<div class="stat"><span class="stat-label">' + label + '</span><b class="stat-value ' + className + '">' + value + '</b>' + extra + '</div>';
+  const stats = document.getElementById('stats');
+  stats.innerHTML = stat('Wörter verändert', format(plan.modifiedCount), 'modified') + stat('Zeichen', format(result.length) + ' <small>/ ' + format(plan.limit) + '</small>', type, '<span class="stat-note ' + type + '">· ' + note + '</span>');
+  const details = [];
+  if (plan.protectedCount) details.push(format(plan.protectedCount) + (plan.protectedCount === 1 ? ' Wort geschützt' : ' Wörter geschützt'));
+  if (plan.randomSkippedCount) details.push(format(plan.randomSkippedCount) + ' zufällig ausgelassen');
+  if (plan.unchangedCount) details.push(format(plan.unchangedCount) + ' ohne Einfügestelle');
+  if (plan.tagCount) details.push(format(plan.tagCount) + (plan.tagCount === 1 ? ' Tag' : ' Tags'));
+  document.getElementById('analysisStats').textContent = details.join(' · ');
+  document.getElementById('analysisStats').hidden = !details.length;
+  stats.setAttribute('title', 'Limit: ' + format(plan.limit) + ' · Tags: ' + plan.tagCount + ' · Abstände entfernt: ' + plan.removedCount + ' · Eingefügt: ' + plan.addedCount + '.');
+  stats.hidden = !plan.original && !result;
+  const budgetNote = document.getElementById('budgetNote');
+  const originalOver = plan.cleanLength - plan.limit;
+  budgetNote.textContent = plan.mode === 'all'
+    ? remaining < 0 ? 'Ergebnis ' + format(-remaining) + ' Zeichen über dem eingestellten Limit.' : ''
+    : originalOver > 0 ? 'Original bereits ' + format(originalOver) + ' Zeichen über dem Limit. Text kürzen oder Limit erhöhen.' : plan.budgetSkippedCount ? format(plan.budgetSkippedCount) + ' Wörter zusätzlich geschützt, damit das Ergebnis ins Limit passt.' : '';
+  budgetNote.hidden = !budgetNote.textContent;
+  budgetNote.className = 'budget-note' + ((plan.mode === 'all' ? remaining < 0 : originalOver > 0) ? ' warn' : '');
+}
+
+function convertText(options = {}) {
+  cancelSettingsCheck();
+  resetCopyFeedback();
+  if (customWidthIsInvalid()) {
+    refreshResultState();
+    setStatus('Bitte die Zeichenanzahl korrigieren.', 'warn');
+    document.getElementById('customWidth').focus();
+    return false;
+  }
+  const input = document.getElementById('input');
+  const output = document.getElementById('output');
+  const outputScroll = output.scrollTop;
+  const limit = getCharacterLimit();
+  document.getElementById('characterLimit').value = String(limit);
+  const mode = document.getElementById('mode').value;
+  const reference = invisibleType === 'reference';
+  const randomized = !reference && document.getElementById('randomizeWords').checked;
+  if (randomized && !options.keepRandomSelection) randomSeed = nextRandomSeed(randomSeed);
+  let plan;
+  try {
+    plan = buildConversionPlan(input.value, reference || mode === 'all' ? new Set() : getCustomProtectedWords(), mode, invisibleWidth, limit, document.getElementById('budgetEnabled').checked, invisibleType, randomized ? randomSeed : null);
+  } catch (error) {
+    if (error.code !== 'OUTPUT_TOO_LARGE') throw error;
+    conversionSizeError = 'Ergebnis wäre zu groß (' + error.estimatedLength.toLocaleString('de-DE') + ' Zeichen; maximal ' + MAX_OUTPUT_LENGTH.toLocaleString('de-DE') + '). Weniger Zeichen pro Stelle wählen oder Text kürzen.';
+    refreshResultState();
+    setStatus(conversionSizeError, 'warn');
+    if (options.save !== false) saveDraft();
+    return false;
+  }
+  conversionSizeError = '';
+  lastPlan = plan;
+  setNodeValue(output, 'value', plan.result);
+  setNodeValue(output, 'scrollTop', outputScroll);
+  if (!options.keepSelection) selectedTokenIndex = null;
+  analysisVisibleTokenCount = Math.max(PREVIEW_BATCH_SIZE, (selectedTokenIndex ?? -1) + 1);
+  selectedTokenElement = null;
+  document.getElementById('wordInspector').hidden = true;
+  document.getElementById('analysisPanel').hidden = !input.value;
+  analysisDirty = true;
+  lastConvertedSettings = getConversionSettings();
+  renderAnalysis();
+  updateStats(lastPlan);
+  refreshResultState();
+  resetScrollSynchronization();
+  if (options.keepSelection) updateWordInspector();
+  const unclosed = getUnclosedBracketLine(input.value);
+  setStatus(input.value ? (unclosed ? 'Umgewandelt. Offene Klammer prüfen.' : 'Umgewandelt.') : 'Bitte Lyrics eingeben.', input.value && !unclosed ? 'good' : 'warn');
+  if (options.save !== false) saveDraft();
+}
+
+async function convertFromUI(buttonId = 'convertButton') {
+  if (convertText() === false) return;
+  if (!document.getElementById('output').value) return;
+  const copying = copyResult({ converted: true, buttonId });
+  if (window.matchMedia('(max-width: 700px)').matches) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('.output-editor').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+  await copying;
+}
+
+function updateWidthControls(syncInput = false) {
+  const reference = invisibleType === 'reference';
+  const input = document.getElementById('customWidth');
+  setNodeValue(document.getElementById('customWidthLabel'), 'textContent', reference ? 'Pro Buchstabe (1–100)' : 'Pro Lücke (1–100)');
+  setNodeValue(input, 'title', reference ? 'Unsichtbare Zeichen nach jedem Buchstaben' : 'Unsichtbare Zeichen pro Buchstabenlücke');
+  for (const [id, pressed] of [['widthOneButton', !customWidthMode && invisibleWidth === 1], ['widthTwoButton', !customWidthMode && invisibleWidth === 2], ['widthCustomButton', customWidthMode]]) {
+    const button = document.getElementById(id);
+    if (button.getAttribute('aria-pressed') !== String(pressed)) button.setAttribute('aria-pressed', String(pressed));
+  }
+  const customButton = document.getElementById('widthCustomButton');
+  if (customButton.getAttribute('aria-expanded') !== String(customWidthMode)) customButton.setAttribute('aria-expanded', String(customWidthMode));
+  setNodeValue(document.getElementById('customWidthControl'), 'hidden', !customWidthMode);
+  if (syncInput) setNodeValue(input, 'value', String(customInvisibleWidth));
+  const invalid = customWidthIsInvalid();
+  if (input.getAttribute('aria-invalid') !== String(invalid)) input.setAttribute('aria-invalid', String(invalid));
+  setNodeValue(document.getElementById('customWidthError'), 'hidden', !invalid);
+}
+
+function setInvisibleWidth(width, selection = width > 2 ? 'custom' : 'preset', syncInput = true) {
+  width = normalizeInvisibleWidth(width);
+  const wasCurrent = lastConvertedSettings !== null && !resultIsStale();
+  const changed = invisibleWidth !== width;
+  customWidthMode = selection === 'custom';
+  invisibleWidth = width;
+  if (customWidthMode) customInvisibleWidth = width;
+  updateWidthControls(syncInput);
+  if (!changed) { refreshResultState(); scheduleDraftSave(); return; }
+  if (wasCurrent) convertText({ keepRandomSelection: true }); else onSettingsChanged('width');
+}
+
+function editCustomWidth(syncInput = false) {
+  const width = Number(document.getElementById('customWidth').value);
+  if (!isValidInvisibleWidth(width)) { onSettingsChanged('width'); return; }
+  setInvisibleWidth(width, 'custom', syncInput);
+}
+
+function updateCharacterControls() {
+  setNodeValue(document.getElementById('characterType'), 'value', invisibleType);
+}
+
+function setCharacterType(type) {
+  type = normalizeCharacterType(type);
+  if (type === invisibleType) return;
+  const wasCurrent = lastConvertedSettings !== null && !resultIsStale();
+  invisibleType = type;
+  if (type === 'reference') {
+    invisibleWidth = 1;
+    customWidthMode = false;
+    updateWidthControls(true);
+  }
+  updateCharacterControls();
+  if (wasCurrent) convertText({ keepRandomSelection: true }); else onSettingsChanged('characterType');
+}
+
+function updateWordInspector() {
+  const token = lastPlan?.tokens[selectedTokenIndex];
+  const inspector = document.getElementById('wordInspector');
+  if (!token || token.kind === 'plain' || resultIsStale()) {
+    setNodeValue(inspector, 'hidden', true);
+    return;
+  }
+  setNodeValue(document.getElementById('reason'), 'textContent', token.reason);
+  setNodeValue(inspector, 'hidden', false);
+  const button = document.getElementById('protectWordButton');
+  setNodeValue(button, 'hidden', invisibleType === 'reference' || document.getElementById('mode').value === 'all' || token.kind === 'tag');
+  if (!button.hidden) setNodeValue(button, 'textContent', getCustomProtectedWords().has(token.normalized) ? 'Schutz aufheben' : 'Wort schützen');
+}
+
+function showReason(event) {
+  const target = event.target.closest ? event.target.closest('[data-token-index]') : event.target;
+  if (!target || target.dataset.tokenIndex === undefined) return;
+  const index = Number(target.dataset.tokenIndex);
+  if (!Number.isInteger(index) || index < 0 || !lastPlan?.tokens[index]) return;
+  const currentTabStop = document.getElementById('preview').querySelector?.('[tabindex="0"]');
+  if (currentTabStop && currentTabStop !== target) currentTabStop.tabIndex = -1;
+  if (selectedTokenElement && selectedTokenElement !== target) {
+    selectedTokenElement.classList?.remove('is-selected');
+    selectedTokenElement.tabIndex = -1;
+  }
+  selectedTokenIndex = index;
+  selectedTokenElement = target.classList ? target : null;
+  target.classList?.add('is-selected');
+  target.tabIndex = 0;
+  updateWordInspector();
+}
+
+function protectSelectedWord() {
+  if (refreshResultState() || invisibleType === 'reference' || document.getElementById('mode').value === 'all') return;
+  const token = lastPlan?.tokens[selectedTokenIndex];
+  if (!token?.normalized || token.kind === 'tag') return;
+  const protectedWords = getCustomProtectedWords();
+  const remove = protectedWords.has(token.normalized);
+  rememberUndo(remove ? 'Wortschutz aufheben' : 'Wort schützen');
+  if (remove) protectedWords.delete(token.normalized); else protectedWords.add(token.normalized);
+  document.getElementById('customWords').value = [...protectedWords].join(', ');
+  if (convertText({ keepSelection: true, keepRandomSelection: true }) === false) return;
+  setStatus('»' + token.original + '« ' + (remove ? 'aus der Schutzliste entfernt.' : 'geschützt.'), 'good');
+}
+
+function resetCopyFeedback() {
+  copyRequest++;
+  for (const timer of copyFeedbackTimers.values()) clearTimeout(timer);
+  copyFeedbackTimers.clear();
+  for (const [buttonId, [labelId]] of Object.entries(COPY_LABELS)) {
+    setNodeValue(document.getElementById(labelId), 'textContent', copyButtonLabel(buttonId));
+  }
+}
+
+function showCopyFeedback(buttonId, message, request) {
+  const [labelId] = COPY_LABELS[buttonId];
+  clearTimeout(copyFeedbackTimers.get(buttonId));
+  document.getElementById(labelId).textContent = message;
+  copyFeedbackTimers.set(buttonId, setTimeout(() => {
+    if (request === copyRequest) document.getElementById(labelId).textContent = copyButtonLabel(buttonId);
+    copyFeedbackTimers.delete(buttonId);
+  }, 2000));
+}
+
+async function copyResult(options = {}) {
+  const output = document.getElementById('output');
+  if (refreshResultState()) { setStatus('Bitte zuerst erneut umwandeln.', 'warn'); return; }
+  if (!output.value) { setStatus('Bitte zuerst Lyrics umwandeln.', 'warn'); return; }
+  const value = output.value;
+  const snapshot = lastConvertedSettings;
+  resetCopyFeedback();
+  const request = copyRequest;
+  const current = () => request === copyRequest && snapshot === lastConvertedSettings && output.value === value && !resultIsStale();
+  const buttonId = COPY_LABELS[options.buttonId] ? options.buttonId : options.converted ? 'convertButton' : 'copyButton';
+  document.getElementById(COPY_LABELS[buttonId][0]).textContent = 'Kopiere …';
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(value);
+    copied = true;
+  } catch {
+    if (!current()) return;
+    output.focus();
+    output.select();
+    try { copied = document.execCommand('copy') === true; } catch { copied = false; }
+  }
+  if (!current()) return;
+  const successMessage = options.converted ? 'Umgewandelt & kopiert.' : 'Kopiert.';
+  setStatus(copied ? successMessage : 'Kopieren fehlgeschlagen. Ergebnis mit Strg+C kopieren.', copied ? 'good' : 'warn');
+  showCopyFeedback(buttonId, copied ? 'Kopiert ✓' : 'Nicht kopiert', request);
+}
+
+function removeInvisibleFromInput() {
+  const input = document.getElementById('input');
+  const clean = removeInvisibleCharacters(input.value);
+  const count = input.value.length - clean.length;
+  if (count) rememberUndo('Text bereinigen');
+  cancelSettingsCheck();
+  resetCopyFeedback();
+  conversionSizeError = '';
+  input.value = clean;
+  const stale = refreshResultState();
+  setStatus(count + ' unsichtbare Zeichen entfernt.' + (stale ? ' Bitte erneut umwandeln.' : ''), stale ? 'warn' : 'good');
+  saveDraft();
+}
+
+function clearProtectionList() {
+  const customWords = document.getElementById('customWords');
+  if (!customWords.value) return;
+  const wasCurrent = lastConvertedSettings !== null && !resultIsStale();
+  rememberUndo('Schutzliste leeren');
+  customWords.value = '';
+  if (wasCurrent) {
+    if (convertText({ keepRandomSelection: true }) === false) return;
+  }
+  else {
+    cancelSettingsCheck();
+    resetCopyFeedback();
+    refreshResultState();
+    saveDraft();
+  }
+  setStatus('Schutzliste geleert.' + (resultIsStale() ? ' Bitte erneut umwandeln.' : ''), resultIsStale() ? 'warn' : 'good');
+}
+
+function resetResult() {
+  cancelSettingsCheck();
+  resetCopyFeedback();
+  document.getElementById('output').value = '';
+  document.getElementById('stats').textContent = '';
+  document.getElementById('stats').hidden = true;
+  document.getElementById('analysisPanel').hidden = true;
+  document.getElementById('preview').textContent = '';
+  document.getElementById('previewMoreButton').hidden = true;
+  document.getElementById('wordInspector').hidden = true;
+  document.getElementById('budgetNote').hidden = true;
+  lastConvertedSettings = null;
+  lastPlan = null;
+  conversionSizeError = '';
+  selectedTokenIndex = null;
+  selectedTokenElement = null;
+  analysisVisibleTokenCount = PREVIEW_BATCH_SIZE;
+  analysisDirty = true;
+  resetScrollSynchronization();
+}
+
+function clearAll() {
+  const hasContent = document.getElementById('input').value || document.getElementById('output').value;
+  if (!hasContent) { setStatus('Bereits leer.'); return; }
+  rememberUndo('Lyrics leeren');
+  document.getElementById('input').value = '';
+  resetResult();
+  refreshResultState();
+  setStatus('Geleert.');
+  saveDraft();
+  document.getElementById('input').focus();
+}
+
+function undoClear() {
+  if (!undoClearState) return;
+  const snapshot = undoClearState;
+  undoClearState = null;
+  restoreSnapshot(snapshot);
+  updateUndoButton();
+  const stale = refreshResultState();
+  setStatus(conversionSizeError || (stale ? 'Wiederhergestellt. Bitte erneut umwandeln.' : 'Wiederhergestellt.'), conversionSizeError || stale ? 'warn' : 'good');
+  saveDraft();
+}
+
+function scrollSynchronizationEnabled() {
+  return document.getElementById('syncScroll').checked && !document.getElementById('copyButton').disabled;
+}
+
+function cancelPendingScrollSync() {
+  if (scrollSyncFrame !== null) cancelAnimationFrame(scrollSyncFrame);
+  scrollSyncFrame = null;
+  pendingScrollSync = null;
+}
+
+function resetScrollSynchronization() {
+  cancelPendingScrollSync();
+  scrollSource = null;
+  synchronizedPositions = new WeakMap();
+  for (const id of ['input', 'output']) {
+    const field = document.getElementById(id);
+    synchronizedPositions.set(field, { top: field.scrollTop, left: field.scrollLeft });
+  }
+}
+
+function beginScrollSynchronization(source) {
+  if (!scrollSynchronizationEnabled()) return;
+  // A wheel, key or pointer action hands control to the field the user chose.
+  if (scrollSource !== source) cancelPendingScrollSync();
+  scrollSource = source;
+  synchronizedPositions.delete(source);
+}
+
+function synchronizeScroll(source, target) {
+  if (!scrollSynchronizationEnabled()) return;
+  const expected = synchronizedPositions.get(source);
+  // Browser-generated scroll events can arrive after the animation frame.
+  // Remember the actual destination instead of releasing a timed lock.
+  if (expected && Math.abs(source.scrollTop - expected.top) <= 1 && Math.abs(source.scrollLeft - expected.left) <= 1) return;
+  if (scrollSource && scrollSource !== source) return;
+  scrollSource = source;
+  pendingScrollSync = { source, target };
+  if (scrollSyncFrame === null) scrollSyncFrame = requestAnimationFrame(flushScrollSynchronization);
+}
+
+function flushScrollSynchronization() {
+  const pending = pendingScrollSync;
+  scrollSyncFrame = null;
+  pendingScrollSync = null;
+  if (!pending || !scrollSynchronizationEnabled() || pending.source !== scrollSource) return;
+  const { source, target } = pending;
+  // Read once per frame, using the latest position and current editor sizes.
+  const sourceTop = source.scrollTop;
+  const sourceLeft = source.scrollLeft;
+  const verticalRange = Math.max(0, source.scrollHeight - source.clientHeight);
+  const horizontalRange = Math.max(0, source.scrollWidth - source.clientWidth);
+  const targetVerticalRange = Math.max(0, target.scrollHeight - target.clientHeight);
+  const targetHorizontalRange = Math.max(0, target.scrollWidth - target.clientWidth);
+  const targetTop = target.scrollTop;
+  const targetLeft = target.scrollLeft;
+  const progress = (position, range) => Math.min(1, Math.max(0, position / range));
+  const top = verticalRange > 0 ? progress(sourceTop, verticalRange) * targetVerticalRange : targetTop;
+  const left = horizontalRange > 0 ? progress(sourceLeft, horizontalRange) * targetHorizontalRange : targetLeft;
+  const moveTop = Math.abs(targetTop - top) > .5;
+  const moveLeft = Math.abs(targetLeft - left) > .5;
+  if (!moveTop && !moveLeft) return;
+  synchronizedPositions.set(target, { top, left });
+  if (moveTop) target.scrollTop = top;
+  if (moveLeft) target.scrollLeft = left;
+  synchronizedPositions.set(target, { top: target.scrollTop, left: target.scrollLeft });
+}
+
+function readEditorScrollPositions() {
+  return ['input', 'output'].map(id => {
+    const field = document.getElementById(id);
+    return { field, top: field.scrollTop, left: field.scrollLeft };
+  });
+}
+
+function preserveEditorScroll(changeLayout, positions = readEditorScrollPositions()) {
+  changeLayout();
+  // Moving a textarea into or out of the dialog resets its native scrolling.
+  for (const { field, top, left } of positions) {
+    field.scrollTop = top;
+    field.scrollLeft = left;
+  }
+  resetScrollSynchronization();
+}
+
+function expandEditor() {
+  if (activeTool !== 'spacer') return;
+  const dialog = document.getElementById('focusDialog');
+  if (dialog.open) return;
+  closingEditorPositions = null;
+  preserveEditorScroll(() => {
+    dialog.appendChild(document.getElementById('editors'));
+    dialog.showModal();
+    document.body.classList.add('focus-open');
+    document.getElementById('expandEditorButton').setAttribute('aria-expanded', 'true');
+    document.getElementById('input').focus({ preventScroll: true });
+  });
+}
+
+function rememberEditorBeforeClose() {
+  // The close event fires after the dialog is hidden; read its scroll first.
+  closingEditorPositions = readEditorScrollPositions();
+  cancelPendingScrollSync();
+}
+
+function requestCloseEditor() {
+  rememberEditorBeforeClose();
+  document.getElementById('focusDialog').close();
+}
+
+function closeEditor() {
+  const positions = closingEditorPositions ?? readEditorScrollPositions();
+  closingEditorPositions = null;
+  preserveEditorScroll(() => {
+    document.getElementById('editorHome').appendChild(document.getElementById('editors'));
+    document.body.classList.remove('focus-open');
+    document.getElementById('expandEditorButton').setAttribute('aria-expanded', 'false');
+  }, positions);
+}
+
+function requestClearSiteData() {
+  const dialog = document.getElementById('clearSiteDataDialog');
+  if (!dialog.open) dialog.showModal();
+  document.getElementById('cancelClearSiteDataButton').focus({ preventScroll: true });
+}
+
+function cancelClearSiteData() {
+  const dialog = document.getElementById('clearSiteDataDialog');
+  if (dialog.open) dialog.close();
+  document.getElementById('clearSiteDataButton').focus({ preventScroll: true });
+}
+
+function clearSiteData() {
+  const dialog = document.getElementById('clearSiteDataDialog');
+  if (!dialog.open) return false;
+
+  // Stop autosave before changing focus or tabs, so erased drafts cannot return.
+  clearingSiteData = true;
+  const failedKeys = [];
+  try {
+    dialog.close();
+    cancelSettingsCheck();
+    for (const timer of [draftSaveTimer, jsonDraftSaveTimer, builderDraftTimer, builderGenerateTimer]) clearTimeout(timer);
+    draftSaveTimer = jsonDraftSaveTimer = builderDraftTimer = builderGenerateTimer = null;
+    draftDirty = jsonDraftDirty = builderDraftDirty = false;
+    resetCopyFeedback();
+    builderRevision++;
+    cancelPendingScrollSync();
+
+    for (const key of [DRAFT_KEY, JSON_DRAFT_KEY, BUILDER_DRAFT_KEY, BUILDER_COMPAT_DRAFT_KEY, ACTIVE_TOOL_KEY]) {
+      try { localStorage.removeItem(key); }
+      catch { failedKeys.push(key); }
+    }
+
+    closeBuilderPreview();
+    if (document.getElementById('focusDialog').open) {
+      requestCloseEditor();
+      closeEditor();
+    }
+    closingEditorPositions = null;
+    document.getElementById('analysisPanel').open = false;
+    resetResult();
+    undoClearState = null;
+    updateUndoButton();
+    applyDraft(normalizeDraft({}));
+    bracketCheckedInput = bracketCheckedLine = null;
+    for (const id of ['reason', 'analysisStats', 'budgetNote']) document.getElementById(id).textContent = '';
+    document.getElementById('protectWordButton').hidden = true;
+    refreshResultState();
+    setStatus('');
+    setDraftStatus('');
+
+    document.getElementById('jsonInput').value = '';
+    document.getElementById('jsonOutput').value = '';
+    jsonFormat = 'standard';
+    jsonConvertedInput = jsonConvertedFormat = jsonConvertedStandardLength = null;
+    jsonSizeError = '';
+    updateJSONFormatHint();
+    updateJSONState();
+    setJSONStatus('');
+    setJSONDraftStatus('');
+
+    document.getElementById('builderPreviewJSON').textContent = '';
+    applyBuilderSettings({});
+    setBuilderStatus('');
+    const builderDraftStatus = document.getElementById('builderDraftStatus');
+    builderDraftStatus.textContent = '';
+    builderDraftStatus.hidden = true;
+    setActiveTool('spacer', { save: false });
+    for (const id of ['input', 'output', 'customWords', 'jsonInput', 'jsonOutput', 'builder_lyrics', 'builderOutput']) {
+      const field = document.getElementById(id);
+      field.scrollTop = field.scrollLeft = 0;
+    }
+    resetScrollSynchronization();
+  } finally {
+    clearingSiteData = false;
+  }
+
+  const status = document.getElementById('siteDataStatus');
+  status.textContent = failedKeys.length
+    ? 'Alle Bereiche zurückgesetzt. Die gespeicherten Browserdaten konnten nicht vollständig gelöscht werden. Bitte das Löschen in den Website-Einstellungen deines Browsers versuchen.'
+    : 'Lokale Daten gelöscht. Alle Bereiche zurückgesetzt.';
+  status.className = failedKeys.length ? 'warn' : 'good';
+  status.hidden = false;
+  document.getElementById('clearSiteDataButton').focus({ preventScroll: true });
+  return failedKeys.length === 0;
+}
+
+for (const id of ['input', 'customWords', 'mode', 'randomizeWords', 'budgetEnabled', 'characterLimit']) {
+  const event = id === 'mode' || id === 'budgetEnabled' || id === 'randomizeWords' ? 'change' : 'input';
+  document.getElementById(id).addEventListener(event, () => onSettingsChanged(id));
+}
+for (const id of ['convertButton', 'focusConvertButton']) document.getElementById(id).addEventListener('click', () => convertFromUI(id));
+document.getElementById('mobileConvertButton').addEventListener('click', () => convertActiveToolFromUI());
+document.getElementById('jsonInput').addEventListener('input', onJSONInputChanged);
+document.getElementById('jsonFormat').addEventListener('change', () => setJSONFormat(document.getElementById('jsonFormat').value));
+document.getElementById('jsonInput').addEventListener('blur', flushJSONDraft);
+document.getElementById('jsonConvertButton').addEventListener('click', () => convertJSONFromUI());
+document.getElementById('jsonCopyButton').addEventListener('click', () => copyJSON({ buttonId: 'jsonCopyButton' }));
+document.getElementById('jsonClearButton').addEventListener('click', clearJSON);
+for (const [index, id] of ['spacerTab', 'jsonTab', 'builderTab'].entries()) {
+  const tab = document.getElementById(id);
+  tab.addEventListener('click', () => setActiveTool(['spacer', 'json', 'builder'][index]));
+  tab.addEventListener('keydown', event => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    let next;
+    if (event.key === 'ArrowLeft') next = (index + 2) % 3;
+    else if (event.key === 'ArrowRight') next = (index + 1) % 3;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = 2;
+    else return;
+    event.preventDefault();
+    setActiveTool(['spacer', 'json', 'builder'][next], { focus: true });
+  });
+}
+document.getElementById('copyButton').addEventListener('click', () => copyResult({ buttonId: 'copyButton' }));
+document.getElementById('widthOneButton').addEventListener('click', () => setInvisibleWidth(1));
+document.getElementById('widthTwoButton').addEventListener('click', () => setInvisibleWidth(2));
+document.getElementById('widthCustomButton').addEventListener('click', () => {
+  setInvisibleWidth(customInvisibleWidth, 'custom');
+  document.getElementById('customWidth').focus();
+});
+document.getElementById('customWidth').addEventListener('input', () => editCustomWidth());
+document.getElementById('customWidth').addEventListener('change', () => editCustomWidth(true));
+document.getElementById('characterType').addEventListener('change', () => setCharacterType(document.getElementById('characterType').value));
+document.getElementById('cleanButton').addEventListener('click', removeInvisibleFromInput);
+document.getElementById('clearButton').addEventListener('click', clearAll);
+document.getElementById('clearSiteDataButton').addEventListener('click', requestClearSiteData);
+document.getElementById('cancelClearSiteDataButton').addEventListener('click', cancelClearSiteData);
+document.getElementById('confirmClearSiteDataButton').addEventListener('click', clearSiteData);
+document.getElementById('clearSiteDataDialog').addEventListener('cancel', event => { event.preventDefault(); cancelClearSiteData(); });
+document.getElementById('clearSiteDataDialog').addEventListener('click', event => { if (event.target === event.currentTarget) cancelClearSiteData(); });
+document.getElementById('clearProtectionButton').addEventListener('click', clearProtectionList);
+document.getElementById('undoClearButton').addEventListener('click', undoClear);
+document.getElementById('preview').addEventListener('click', showReason);
+document.getElementById('preview').addEventListener('focusin', showReason);
+document.getElementById('preview').addEventListener('keydown', event => {
+  if (event.key === 'ArrowRight' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+    const direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
+    let index = Number(event.target.dataset.tokenIndex) + direction;
+    while (index >= 0 && index < analysisVisibleTokenCount && lastPlan?.tokens[index]?.kind === 'plain') index += direction;
+    if (index >= 0 && index < analysisVisibleTokenCount) {
+      const next = document.getElementById('preview').querySelector('[data-token-index="' + index + '"]');
+      if (next) {
+        event.preventDefault();
+        next.focus();
+      }
+    }
+    return;
+  }
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    showReason(event);
+    if (!document.getElementById('protectWordButton').hidden) document.getElementById('protectWordButton').focus();
+  }
+});
+document.getElementById('previewMoreButton').addEventListener('click', showMoreAnalysis);
+document.getElementById('protectWordButton').addEventListener('click', protectSelectedWord);
+document.getElementById('analysisPanel').addEventListener('toggle', renderAnalysis);
+document.getElementById('showInvisible').addEventListener('change', () => { analysisDirty = true; renderAnalysis(); refreshResultState(); scheduleDraftSave(); });
+document.getElementById('syncScroll').addEventListener('change', () => { resetScrollSynchronization(); scheduleDraftSave(); });
+for (const id of ['input', 'customWords', 'characterLimit']) document.getElementById(id).addEventListener('blur', flushDraft);
+document.getElementById('customWidth').addEventListener('blur', () => {
+  flushDraft();
+});
+window.addEventListener('pagehide', flushAllDrafts);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushAllDrafts(); });
+for (const [sourceId, targetId] of [['input', 'output'], ['output', 'input']]) {
+  const source = document.getElementById(sourceId);
+  const target = document.getElementById(targetId);
+  source.addEventListener('scroll', () => synchronizeScroll(source, target), { passive: true });
+  for (const event of ['wheel', 'pointerdown', 'touchstart', 'keydown']) {
+    source.addEventListener(event, () => beginScrollSynchronization(source), { passive: true });
+  }
+}
+document.getElementById('expandEditorButton').addEventListener('click', expandEditor);
+document.getElementById('closeEditorButton').addEventListener('click', requestCloseEditor);
+document.getElementById('focusDialog').addEventListener('cancel', rememberEditorBeforeClose);
+document.getElementById('focusDialog').addEventListener('close', closeEditor);
+loadDraft();
+refreshResultState();
+loadJSONDraft();
+updateJSONState();
+initializeBuilder();
+loadActiveTool();
+
+</script>
+
+</body>
+</html>
